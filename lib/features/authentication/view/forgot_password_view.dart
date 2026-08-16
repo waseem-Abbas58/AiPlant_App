@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/theme/app_colors.dart';
@@ -8,7 +9,7 @@ import '../../../core/validators/validators.dart';
 import '../../../shared/widgets/custom_text.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../controller/forgot_password_controller.dart';
-import '../widgets/auth_shared_widgets.dart';
+import '../widgets/auth_shared_widgets.dart'; 
 class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});
   @override
@@ -43,8 +44,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
     final textTheme = Theme.of(context).textTheme;
     final style = AuthFormStyle(textTheme);
 
-    return AuthScaffold(
-      pinBottomDecoration: true,
+    return _ForgotPasswordScaffold(
       child: AutofillGroup(
       child: Form(
         key: controller.formKey,
@@ -60,8 +60,14 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
               slideBegin: const Offset(0, 0.08),
               child: const AuthLogo(),
             ),
-            SizedBox(height: AppSpacing.extraLarge.h),
-            AuthCard(
+            SizedBox(height: AppSpacing.small.h),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.large.w,
+                AppSpacing.large.h,
+                AppSpacing.large.w,
+                AppSpacing.small.h,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -78,7 +84,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
                         letterSpacing: -0.3,
                       ),
                       color: AppColors.primaryText,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.bold,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -145,7 +151,6 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
                 ],
               ), 
             ),
-            SizedBox(height: AppSpacing.medium.h),
             AuthStaggeredEntrance(
               animation: _entrance,
               begin: 0.70,
@@ -160,6 +165,59 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
           ],
         ),
       ),
+      ),
+    );
+  }
+}
+
+class _ForgotPasswordScaffold extends StatelessWidget {
+  const _ForgotPasswordScaffold({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = SafeArea(
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.large.w,
+          AppSpacing.extraLarge.h,
+          AppSpacing.large.w,
+          AppSpacing.large.h,
+        ),
+        child: child,
+      ),
+    );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemStatusBarContrastEnforced: false,
+      ),
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        extendBody: true,
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Image(
+                image: AssetImage('assets/images/ForgotPassword.png'),
+                fit: BoxFit.fitWidth,
+                alignment: Alignment.bottomCenter,
+                width: double.infinity,
+              ),
+            ),
+            content,
+          ],
+        ),
       ),
     );
   }

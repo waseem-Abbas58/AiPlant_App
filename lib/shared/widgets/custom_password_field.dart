@@ -22,6 +22,8 @@ class CustomPasswordField extends StatefulWidget {
     this.textInputAction = TextInputAction.done,
     this.fillColor,
     this.focusedBorderColor,
+    this.enabledBorderColor,
+    this.enabledBorderWidth,
     this.cursorColor,
     this.borderRadius,
     this.contentPadding,
@@ -45,6 +47,8 @@ class CustomPasswordField extends StatefulWidget {
   final TextInputAction textInputAction;
   final Color? fillColor;
   final Color? focusedBorderColor;
+  final Color? enabledBorderColor;
+  final double? enabledBorderWidth;
   final Color? cursorColor;
   final double? borderRadius;
   final EdgeInsetsGeometry? contentPadding;
@@ -89,6 +93,8 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
       onSubmitted: widget.onSubmitted,
       fillColor: widget.fillColor,
       focusedBorderColor: widget.focusedBorderColor,
+      enabledBorderColor: widget.enabledBorderColor,
+      enabledBorderWidth: widget.enabledBorderWidth,
       cursorColor: widget.cursorColor,
       borderRadius: widget.borderRadius,
       contentPadding: widget.contentPadding,

@@ -117,14 +117,19 @@ class AuthScaffold extends StatelessWidget {
 }
 
 class AuthLogo extends StatelessWidget {
-  const AuthLogo({super.key});
+  const AuthLogo({
+    super.key,
+    this.width = AppSizes.imageLg + AppSpacing.large,
+  });
+
+  final double width;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: CustomImage(
         assetPath: AppImages.authLogo,
-        width: AppSizes.imageLg + AppSpacing.large,
+        width: width,
         fit: BoxFit.contain,
         borderRadius: AppRadius.extraLarge,
         semanticsLabel: AppStrings.appName,
@@ -210,12 +215,18 @@ class AuthPrimaryButton extends StatelessWidget {
     required this.enabled,
     required this.onPressed,
     this.isLoading = false,
+    this.shadow,
+    this.disabledBackgroundColor,
+    this.disabledTextColor,
   });
 
   final String text;
   final bool enabled;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final List<BoxShadow>? shadow;
+  final Color? disabledBackgroundColor;
+  final Color? disabledTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +236,9 @@ class AuthPrimaryButton extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.large.r),
-        boxShadow: interactive ? AppShadows.soft : AppShadows.none,
+        boxShadow: interactive
+            ? (shadow ?? AppShadows.soft)
+            : AppShadows.none,
       ),
       child: CustomButton(
         text: text,
@@ -233,8 +246,9 @@ class AuthPrimaryButton extends StatelessWidget {
         isLoading: isLoading,
         onPressed: interactive ? onPressed : null,
         backgroundColor: AppColors.primaryGreen,
-        disabledBackgroundColor: AppColors.divider,
-        disabledTextColor: AppColors.secondaryText,
+        disabledBackgroundColor:
+            disabledBackgroundColor ?? AppColors.divider,
+        disabledTextColor: disabledTextColor ?? AppColors.secondaryText,
         borderRadius: AppRadius.large,
         height: AppSizes.buttonHeightLg,
         textStyle: textTheme.labelLarge?.copyWith(
@@ -257,6 +271,11 @@ class AuthSocialRow extends StatelessWidget {
     this.dividerBegin = 0.64,
     this.dividerEnd = 0.84,
     this.firstBegin = 0.70,
+    this.buttonFill,
+    this.buttonBorderColor,
+    this.buttonShadow,
+    this.dividerColor,
+    this.dividerThickness,
   });
 
   final Animation<double> animation;
@@ -266,6 +285,11 @@ class AuthSocialRow extends StatelessWidget {
   final double dividerBegin;
   final double dividerEnd;
   final double firstBegin;
+  final Color? buttonFill;
+  final Color? buttonBorderColor;
+  final List<BoxShadow>? buttonShadow;
+  final Color? dividerColor;
+  final double? dividerThickness;
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +301,11 @@ class AuthSocialRow extends StatelessWidget {
           animation: animation,
           begin: dividerBegin,
           end: dividerEnd,
-          child: _AuthSocialDivider(textTheme: textTheme),
+          child: _AuthSocialDivider(
+            textTheme: textTheme,
+            lineColor: dividerColor,
+            thickness: dividerThickness,
+          ),
         ),
         SizedBox(height: AppSpacing.medium.h),
         Row(
@@ -292,6 +320,9 @@ class AuthSocialRow extends StatelessWidget {
                   assetPath: AppIcons.google,
                   label: 'Google',
                   onPressed: onGoogle,
+                  fill: buttonFill,
+                  borderColor: buttonBorderColor,
+                  shadow: buttonShadow,
                 ),
               ),
             ),
@@ -306,6 +337,9 @@ class AuthSocialRow extends StatelessWidget {
                   assetPath: AppIcons.apple,
                   label: 'Apple',
                   onPressed: onApple,
+                  fill: buttonFill,
+                  borderColor: buttonBorderColor,
+                  shadow: buttonShadow,
                 ),
               ),
             ),
@@ -320,6 +354,9 @@ class AuthSocialRow extends StatelessWidget {
                   assetPath: AppIcons.facebook,
                   label: 'Facebook',
                   onPressed: onFacebook,
+                  fill: buttonFill,
+                  borderColor: buttonBorderColor,
+                  shadow: buttonShadow,
                 ),
               ),
             ),
@@ -331,19 +368,28 @@ class AuthSocialRow extends StatelessWidget {
 }
 
 class _AuthSocialDivider extends StatelessWidget {
-  const _AuthSocialDivider({required this.textTheme});
+  const _AuthSocialDivider({
+    required this.textTheme,
+    this.lineColor,
+    this.thickness,
+  });
 
   final TextTheme textTheme;
+  final Color? lineColor;
+  final double? thickness;
 
   @override
   Widget build(BuildContext context) {
+    final color = lineColor ?? AppColors.border.withValues(alpha: 0.8);
+    final lineThickness = thickness ?? AppBorders.widthThin;
+
     return Row(
       children: [
         Expanded(
           child: Divider(
-            color: AppColors.border.withValues(alpha: 0.8),
-            thickness: AppBorders.widthThin,
-            height: AppBorders.widthThin,
+            color: color,
+            thickness: lineThickness,
+            height: lineThickness,
           ),
         ),
         Padding(
@@ -359,9 +405,9 @@ class _AuthSocialDivider extends StatelessWidget {
         ),
         Expanded(
           child: Divider(
-            color: AppColors.border.withValues(alpha: 0.8),
-            thickness: AppBorders.widthThin,
-            height: AppBorders.widthThin,
+            color: color,
+            thickness: lineThickness,
+            height: lineThickness,
           ),
         ),
       ],
@@ -374,11 +420,17 @@ class _AuthSocialButton extends StatefulWidget {
     required this.assetPath,
     required this.label,
     required this.onPressed,
+    this.fill,
+    this.borderColor,
+    this.shadow,
   });
 
   final String assetPath;
   final String label;
   final VoidCallback onPressed;
+  final Color? fill;
+  final Color? borderColor;
+  final List<BoxShadow>? shadow;
 
   @override
   State<_AuthSocialButton> createState() => _AuthSocialButtonState();
@@ -395,6 +447,9 @@ class _AuthSocialButtonState extends State<_AuthSocialButton> {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(AppRadius.large.r);
+    final fill = widget.fill ?? AppColors.surface;
+    final borderColor = widget.borderColor ?? AppColors.border;
+    final shadow = widget.shadow ?? AppShadows.soft;
 
     return Listener(
       onPointerDown: (_) => _setPressed(true),
@@ -409,7 +464,7 @@ class _AuthSocialButtonState extends State<_AuthSocialButton> {
           duration: AppDurations.normal,
           curve: Curves.easeOutCubic,
           child: Material(
-            color: AppColors.surface,
+            color: fill,
             elevation: 0,
             shadowColor: Colors.transparent,
             borderRadius: radius,
@@ -419,13 +474,13 @@ class _AuthSocialButtonState extends State<_AuthSocialButton> {
               child: Ink(
                 height: AppSizes.buttonHeightMd.h,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: fill,
                   borderRadius: radius,
                   border: Border.all(
-                    color: AppColors.border,
+                    color: borderColor,
                     width: AppBorders.widthThin,
                   ),
-                  boxShadow: AppShadows.soft,
+                  boxShadow: shadow,
                 ),
                 child: Center(
                   child: CustomSVG(

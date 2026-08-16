@@ -39,6 +39,8 @@ class CustomTextField extends StatelessWidget {
     this.hintStyle,
     this.onTap,
     this.focusedBorderColor,
+    this.enabledBorderColor,
+    this.enabledBorderWidth,
     this.cursorColor,
     this.autovalidateMode,
     this.isDense = false,
@@ -73,6 +75,8 @@ class CustomTextField extends StatelessWidget {
   final TextStyle? hintStyle;
   final VoidCallback? onTap;
   final Color? focusedBorderColor;
+  final Color? enabledBorderColor;
+  final double? enabledBorderWidth;
   final Color? cursorColor;
   final AutovalidateMode? autovalidateMode;
   final bool isDense;
@@ -102,8 +106,10 @@ class CustomTextField extends StatelessWidget {
     }
 
     final subtleBorder = buildBorder(
-      (isDark ? AppColors.darkBorder : AppColors.border).withValues(alpha: 0.45),
-      width: AppBorders.widthThin,
+      enabledBorderColor ??
+          (isDark ? AppColors.darkBorder : AppColors.border)
+              .withValues(alpha: 0.45),
+      width: enabledBorderWidth ?? AppBorders.widthThin,
     );
 
     final effectivePadding = contentPadding ??
