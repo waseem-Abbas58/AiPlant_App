@@ -1,0 +1,3 @@
+class AuthenticationModel {
+  const AuthenticationModel();
+}

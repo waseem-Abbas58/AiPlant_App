@@ -1,0 +1,3 @@
+class SettingsModel {
+  const SettingsModel();
+}

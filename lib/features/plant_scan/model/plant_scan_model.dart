@@ -1,0 +1,3 @@
+class PlantScanModel {
+  const PlantScanModel();
+}

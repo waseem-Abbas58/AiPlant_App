@@ -1,0 +1,3 @@
+class HomeModel {
+  const HomeModel();
+}

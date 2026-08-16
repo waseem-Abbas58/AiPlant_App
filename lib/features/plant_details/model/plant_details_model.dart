@@ -1,0 +1,3 @@
+class PlantDetailsModel {
+  const PlantDetailsModel();
+}

@@ -1,0 +1,7 @@
+
+START
+TEST C:\Users\Classic\.cursor\projects\c-Users-Classic-StudioProjects-AiPlant-App\assets\c__Users_Classic_AppData_Roaming_Cursor_User_workspaceStorage_c481a003dad111c1b0587b96fc68521c_images_Gemini_Generated_Image_p79hoxp79hoxp79h-14a51bc5-5c2f-4fb3-88ad-9755f1a7d62b.png
+TEST \\?\C:\Users\Classic\.cursor\projects\c-Users-Classic-StudioProjects-AiPlant-App\assets\c__Users_Classic_AppData_Roaming_Cursor_User_workspaceStorage_c481a003dad111c1b0587b96fc68521c_images_Gemini_Generated_Image_p79hoxp79hoxp79h-14a51bc5-5c2f-4fb3-88ad-9755f1a7d62b.png
+FOUND_CANDIDATE \\?\C:\Users\Classic\.cursor\projects\c-Users-Classic-StudioProjects-AiPlant-App\assets\c__Users_Classic_AppData_Roaming_Cursor_User_workspaceStorage_c481a003dad111c1b0587b96fc68521c_images_Gemini_Generated_Image_p79hoxp79hoxp79h-14a51bc5-5c2f-4fb3-88ad-9755f1a7d62b.png
+COPIED_TO c:\Users\Classic\StudioProjects\AiPlant_App\_app_icon_source.png
+NOW_RUN_SCRIPT

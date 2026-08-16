@@ -1,0 +1,3 @@
+class SubscriptionModel {
+  const SubscriptionModel();
+}

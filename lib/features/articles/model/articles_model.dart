@@ -1,0 +1,3 @@
+class ArticlesModel {
+  const ArticlesModel();
+}

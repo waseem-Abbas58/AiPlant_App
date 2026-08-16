@@ -1,0 +1,3 @@
+class DiseaseDetectionModel {
+  const DiseaseDetectionModel();
+}

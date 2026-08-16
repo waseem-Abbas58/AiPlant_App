@@ -1,0 +1,3 @@
+class ReminderModel {
+  const ReminderModel();
+}

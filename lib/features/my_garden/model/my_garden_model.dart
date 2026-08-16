@@ -1,0 +1,3 @@
+class MyGardenModel {
+  const MyGardenModel();
+}
