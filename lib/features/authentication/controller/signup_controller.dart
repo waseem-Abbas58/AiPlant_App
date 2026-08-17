@@ -6,9 +6,6 @@ import '../../../core/helpers/navigation_helper.dart';
 
 class SignupController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
   final RxString name = ''.obs;
   final RxString email = ''.obs;
@@ -19,17 +16,11 @@ class SignupController extends GetxController {
       email.value.trim().isNotEmpty &&
       password.value.isNotEmpty;
 
-  @override
-  void onInit() {
-    super.onInit();
-    nameController.addListener(_syncName);
-    emailController.addListener(_syncEmail);
-    passwordController.addListener(_syncPassword);
-  }
+  void syncName(String value) => name.value = value;
 
-  void _syncName() => name.value = nameController.text;
-  void _syncEmail() => email.value = emailController.text;
-  void _syncPassword() => password.value = passwordController.text;
+  void syncEmail(String value) => email.value = value;
+
+  void syncPassword(String value) => password.value = value;
 
   void submitSignup() {
     formKey.currentState?.validate();
@@ -48,18 +39,4 @@ class SignupController extends GetxController {
   void onAppleSignup() {}
 
   void onFacebookSignup() {}
-
-  @override
-  void onClose() {
-    nameController
-      ..removeListener(_syncName)
-      ..dispose();
-    emailController
-      ..removeListener(_syncEmail)
-      ..dispose();
-    passwordController
-      ..removeListener(_syncPassword)
-      ..dispose();
-    super.onClose();
-  }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/constants/app_durations.dart';
@@ -9,7 +9,6 @@ import '../../../shared/widgets/custom_text.dart';
 import '../controller/otp_verification_controller.dart';
 import '../widgets/auth_otp_input.dart';
 import '../widgets/auth_shared_widgets.dart';
-
 class OtpVerificationView extends StatefulWidget {
   const OtpVerificationView({super.key});
 
@@ -22,30 +21,72 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
   static final Duration _entranceDuration =
       AppDurations.slow + AppDurations.medium;
 
+  final TextEditingController _otpController = TextEditingController();
+  final FocusNode _otpFocusNode = FocusNode();
+
   late final AnimationController _entrance;
+  late final OtpVerificationController _auth;
 
   @override
   void initState() {
     super.initState();
+    _auth = Get.find<OtpVerificationController>();
+    _otpController.addListener(_syncOtp);
+    _syncOtp();
     _entrance = AnimationController(
       vsync: this,
       duration: _entranceDuration,
     )..forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _otpFocusNode.requestFocus();
+    });
+  }
+
+  void _syncOtp() {
+    final digits = _otpController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final clipped = digits.length > OtpVerificationController.otpLength
+        ? digits.substring(0, OtpVerificationController.otpLength)
+        : digits;
+    if (clipped != _otpController.text) {
+      _otpController.value = TextEditingValue(
+        text: clipped,
+        selection: TextSelection.collapsed(offset: clipped.length),
+      );
+      return;
+    }
+    _auth.syncOtp(clipped);
+  }
+
+  void _verifyCode() {
+    if (!_auth.canVerify) return;
+    _otpFocusNode.unfocus();
+    _auth.verifyCode();
+  }
+
+  void _resendCode() {
+    if (!_auth.canResend) return;
+    _otpController.clear();
+    _auth.resendCode();
+    _otpFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
+    _otpController
+      ..removeListener(_syncOtp)
+      ..dispose();
+    _otpFocusNode.dispose();
     _entrance.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<OtpVerificationController>();
+    final controller = _auth;
     final textTheme = Theme.of(context).textTheme;
 
-    return AuthScaffold(
-      pinBottomDecoration: true,
+    return _OtpVerificationScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -58,7 +99,13 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
             child: const AuthLogo(),
           ),
           SizedBox(height: AppSpacing.extraLarge.h),
-          AuthCard(
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.large.w,
+              AppSpacing.large.h,
+              AppSpacing.large.w,
+              AppSpacing.large.h,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -75,7 +122,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
                       letterSpacing: -0.3,
                     ),
                     color: AppColors.primaryText,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.bold,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -88,7 +135,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
                   child: Column(
                     children: [
                       CustomText(
-                        'We sent a 6-digit verification code to your email address.',
+                        'We sent a 6-digit verification code',
                         style: textTheme.bodyMedium?.copyWith(height: 1.4),
                         color: AppColors.secondaryText,
                         textAlign: TextAlign.center,
@@ -119,12 +166,12 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
                   child: Column(
                     children: [
                       AuthOtpInput(
-                        controller: controller.otpController,
-                        focusNode: controller.otpFocusNode,
+                        controller: _otpController,
+                        focusNode: _otpFocusNode,
                         hasError: controller.hasError,
                         onSubmitted: () {
                           if (controller.canVerify) {
-                            controller.verifyCode();
+                            _verifyCode();
                           }
                         },
                       ),
@@ -145,7 +192,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
                     ],
                   ),
                 ),
-                SizedBox(height: AppSpacing.large.h),
+                SizedBox(height: AppSpacing.medium.h),
                 AuthStaggeredEntrance(
                   animation: _entrance,
                   begin: 0.48,
@@ -156,7 +203,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
                     () => AuthPrimaryButton(
                       text: 'Verify Code',
                       enabled: controller.canVerify,
-                      onPressed: controller.verifyCode,
+                      onPressed: _verifyCode,
                     ),
                   ),
                 ),
@@ -169,7 +216,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
                     final canResend = controller.canResend;
                     return TextButton(
                       onPressed:
-                          canResend ? controller.resendCode : null,
+                          canResend ? _resendCode : null,
                       style: TextButton.styleFrom(
                         foregroundColor: canResend
                             ? AppColors.primaryGreen
@@ -197,19 +244,71 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
               ],
             ),
           ),
-          SizedBox(height: AppSpacing.medium.h),
           AuthStaggeredEntrance(
             animation: _entrance,
-            begin: 0.70,
+            begin: 0.50,
             end: 1,
             slideBegin: const Offset(0, 0.08),
             child: AuthFooterPrompt(
-              leading: '',
-              actionLabel: 'Change email',
+              leading: '', 
+              actionLabel: 'Change Email',
               onAction: controller.goToForgotPassword,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _OtpVerificationScaffold extends StatelessWidget {
+  const _OtpVerificationScaffold({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = SafeArea(
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.large.w,
+          AppSpacing.extraLarge.h,
+          AppSpacing.large.w,
+          AppSpacing.large.h + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: child,
+      ),
+    );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemStatusBarContrastEnforced: false,
+      ),
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        extendBody: true,
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Image(
+                image: AssetImage('assets/images/otp_background.png'),
+                fit: BoxFit.fitWidth,
+                alignment: Alignment.bottomCenter,
+                width: double.infinity,
+              ),
+            ),
+            content,
+          ],
+        ),
       ),
     );
   }

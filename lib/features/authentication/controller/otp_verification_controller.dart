@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/route_names.dart';
@@ -15,15 +14,13 @@ class OtpVerificationController extends GetxController {
   /// by a server, Firebase, or API.
   static const String demoOtpCode = '123456';
 
-  final TextEditingController otpController = TextEditingController();
-  final FocusNode otpFocusNode = FocusNode();
-
   final RxString email = ''.obs;
   final RxString otp = ''.obs;
   final RxBool hasError = false.obs;
   final RxInt secondsRemaining = resendSeconds.obs;
 
   Timer? _resendTimer;
+  bool _isVerifying = false;
 
   String get maskedEmail => _maskEmail(email.value);
 
@@ -42,14 +39,7 @@ class OtpVerificationController extends GetxController {
   void onInit() {
     super.onInit();
     email.value = _readEmailArgument();
-    otpController.addListener(_syncOtp);
     _startResendTimer();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-    otpFocusNode.requestFocus();
   }
 
   String _readEmailArgument() {
@@ -75,44 +65,39 @@ class OtpVerificationController extends GetxController {
     return '$visible••••$domain';
   }
 
-  void _syncOtp() {
-    final digits = otpController.text.replaceAll(RegExp(r'[^0-9]'), '');
-    final clipped = digits.length > otpLength
-        ? digits.substring(0, otpLength)
-        : digits;
-    if (clipped != otpController.text) {
-      otpController.value = TextEditingValue(
-        text: clipped,
-        selection: TextSelection.collapsed(offset: clipped.length),
-      );
-      return;
-    }
-    if (otp.value == clipped) return;
-    otp.value = clipped;
+  void syncOtp(String value) {
+    if (otp.value == value) return;
+    otp.value = value;
     if (hasError.value) hasError.value = false;
   }
 
   void verifyCode() {
-    if (!canVerify) return;
-    otpFocusNode.unfocus();
+    if (_isVerifying || !canVerify) return;
 
     // Local demo comparison only. Does not contact a server.
-    if (otp.value == demoOtpCode) {
-      hasError.value = false;
-      NavigationHelper.toNamed(RouteNames.resetPassword);
+    if (otp.value != demoOtpCode) {
+      hasError.value = true;
       return;
     }
 
-    hasError.value = true;
+    hasError.value = false;
+    _isVerifying = true;
+    final navigation = NavigationHelper.toNamed(RouteNames.resetPassword);
+    if (navigation == null) {
+      _isVerifying = false;
+      return;
+    }
+    navigation.whenComplete(() {
+      if (isClosed) return;
+      _isVerifying = false;
+    });
   }
 
   void resendCode() {
     if (!canResend) return;
-    otpController.clear();
     otp.value = '';
     hasError.value = false;
     _startResendTimer();
-    otpFocusNode.requestFocus();
   }
 
   void goToForgotPassword() {
@@ -127,6 +112,10 @@ class OtpVerificationController extends GetxController {
     _resendTimer?.cancel();
     secondsRemaining.value = resendSeconds;
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (isClosed) {
+        timer.cancel();
+        return;
+      }
       if (secondsRemaining.value <= 1) {
         secondsRemaining.value = 0;
         timer.cancel();
@@ -139,10 +128,6 @@ class OtpVerificationController extends GetxController {
   @override
   void onClose() {
     _resendTimer?.cancel();
-    otpController
-      ..removeListener(_syncOtp)
-      ..dispose();
-    otpFocusNode.dispose();
     super.onClose();
   }
 }

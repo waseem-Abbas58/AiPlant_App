@@ -26,26 +26,53 @@ class _SignupViewState extends State<SignupView>
   static final Duration _entranceDuration =
       AppDurations.slow + AppDurations.medium;
 
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   late final AnimationController _entrance;
+  late final SignupController _auth;
 
   @override
   void initState() {
     super.initState();
+    _auth = Get.find<SignupController>();
+    _nameController.addListener(_syncName);
+    _emailController.addListener(_syncEmail);
+    _passwordController.addListener(_syncPassword);
+    _syncName();
+    _syncEmail();
+    _syncPassword();
     _entrance = AnimationController(
       vsync: this,
       duration: _entranceDuration,
     )..forward();
   }
 
+  void _syncName() => _auth.syncName(_nameController.text);
+
+  void _syncEmail() => _auth.syncEmail(_emailController.text);
+
+  void _syncPassword() => _auth.syncPassword(_passwordController.text);
+
   @override
   void dispose() {
+    _nameController
+      ..removeListener(_syncName)
+      ..dispose();
+    _emailController
+      ..removeListener(_syncEmail)
+      ..dispose();
+    _passwordController
+      ..removeListener(_syncPassword)
+      ..dispose();
     _entrance.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<SignupController>();
+    final controller = _auth;
     final textTheme = Theme.of(context).textTheme;
     final style = AuthFormStyle(textTheme);
 
@@ -71,7 +98,7 @@ class _SignupViewState extends State<SignupView>
                 AppSpacing.large.h,
                 AppSpacing.large.w,  
                 AppSpacing.small.h,
-              ), 
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -82,7 +109,7 @@ class _SignupViewState extends State<SignupView>
                     scaleBegin: 0.98,
                     slideBegin: const Offset(0, 0.10),
                     child: CustomText(
-                      'Create Your Account ',
+                      'Create Your Account',
                       style: textTheme.headlineSmall?.copyWith(
                         height: 1.2,
                         letterSpacing: -0.3,
@@ -111,14 +138,17 @@ class _SignupViewState extends State<SignupView>
                     begin: 0.26,
                     end: 0.48,
                     slideBegin: const Offset(0, 0.08),
-                    child: CustomTextField(
-                      controller: controller.nameController,
+                    child: AuthFieldSurface(
+                      child: CustomTextField(
+                      controller: _nameController,
                       hintText: 'Full Name',
                       keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
                       isDense: true,
                       fillColor: AuthFormStyle.fill,
+                      enabledBorderColor: AuthFormStyle.enabledBorder,
+                      enabledBorderWidth: AuthFormStyle.enabledBorderWidth,
                       focusedBorderColor: AuthFormStyle.focus,
                       cursorColor: AuthFormStyle.focus,
                       borderRadius: AuthFormStyle.fieldRadius,
@@ -129,6 +159,7 @@ class _SignupViewState extends State<SignupView>
                           Validators.required(value, fieldName: 'Full name'),
                       prefixIcon: AuthFormStyle.icon(Icons.person_outline_rounded),
                     ),
+                    ),
                   ),
                   SizedBox(height: AppSpacing.medium.h),
                   AuthStaggeredEntrance(
@@ -136,8 +167,9 @@ class _SignupViewState extends State<SignupView>
                     begin: 0.34,
                     end: 0.56,
                     slideBegin: const Offset(0, 0.08),
-                    child: CustomTextField(
-                      controller: controller.emailController,
+                    child: AuthFieldSurface(
+                      child: CustomTextField(
+                      controller: _emailController,
                       hintText: 'Email address',
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
@@ -145,6 +177,8 @@ class _SignupViewState extends State<SignupView>
                       enableSuggestions: false,
                       isDense: true,
                       fillColor: AuthFormStyle.fill,
+                      enabledBorderColor: AuthFormStyle.enabledBorder,
+                      enabledBorderWidth: AuthFormStyle.enabledBorderWidth,
                       focusedBorderColor: AuthFormStyle.focus,
                       cursorColor: AuthFormStyle.focus,
                       borderRadius: AuthFormStyle.fieldRadius,
@@ -155,6 +189,7 @@ class _SignupViewState extends State<SignupView>
                       autofillHints: const [AutofillHints.email],
                       prefixIcon: AuthFormStyle.icon(Icons.mail_outline_rounded),
                     ),
+                    ),
                   ),
                   SizedBox(height: AppSpacing.medium.h),
                   AuthStaggeredEntrance(
@@ -162,12 +197,15 @@ class _SignupViewState extends State<SignupView>
                     begin: 0.42,
                     end: 0.64,
                     slideBegin: const Offset(0, 0.08),
-                    child: CustomPasswordField(
-                      controller: controller.passwordController,
+                    child: AuthFieldSurface(
+                      child: CustomPasswordField(
+                      controller: _passwordController,
                       hintText: 'Password',
                       textInputAction: TextInputAction.done,
                       isDense: true,
                       fillColor: AuthFormStyle.fill,
+                      enabledBorderColor: AuthFormStyle.enabledBorder,
+                      enabledBorderWidth: AuthFormStyle.enabledBorderWidth,
                       focusedBorderColor: AuthFormStyle.focus,
                       cursorColor: AuthFormStyle.focus,
                       borderRadius: AuthFormStyle.fieldRadius,
@@ -182,6 +220,7 @@ class _SignupViewState extends State<SignupView>
                         }
                       },
                       prefixIcon: AuthFormStyle.icon(Icons.lock_outline_rounded),
+                    ),
                     ),
                   ),
                   SizedBox(height: AppSpacing.large.h),
@@ -245,7 +284,7 @@ class _SignupScaffold extends StatelessWidget {
           AppSpacing.large.w,
           AppSpacing.extraLarge.h,
           AppSpacing.large.w,
-          AppSpacing.large.h,
+          AppSpacing.large.h + MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: child,
       ),
@@ -261,7 +300,7 @@ class _SignupScaffold extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.white,
         extendBody: true,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -270,9 +309,9 @@ class _SignupScaffold extends StatelessWidget {
               right: 0,
               bottom: 0,
               child: Image(
-                image: AssetImage('assets/images/signnup.png'),
+                image: AssetImage('assets/images/loginimage.png'),
                 fit: BoxFit.fitWidth,
-                alignment: Alignment.bottomCenter,
+                alignment: Alignment.bottomCenter, 
                 width: double.infinity,
               ),
             ),

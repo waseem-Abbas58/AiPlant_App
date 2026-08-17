@@ -6,28 +6,33 @@ import '../../../core/helpers/navigation_helper.dart';
 
 class ForgotPasswordController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
 
   final RxString email = ''.obs;
 
+  bool _isSubmitting = false;
+
   bool get canSubmit => email.value.trim().isNotEmpty;
 
-  @override
-  void onInit() {
-    super.onInit();
-    emailController.addListener(_syncEmail);
-  }
-
-  void _syncEmail() => email.value = emailController.text;
+  void syncEmail(String value) => email.value = value;
 
   void submitResetRequest() {
+    if (_isSubmitting) return;
     final isValid = formKey.currentState?.validate() ?? false;
     if (!isValid) return;
 
-    NavigationHelper.toNamed(
+    _isSubmitting = true;
+    final navigation = NavigationHelper.toNamed(
       RouteNames.otpVerification,
-      arguments: emailController.text.trim(),
+      arguments: email.value.trim(),
     );
+    if (navigation == null) {
+      _isSubmitting = false;
+      return;
+    }
+    navigation.whenComplete(() {
+      if (isClosed) return;
+      _isSubmitting = false;
+    });
   }
 
   void goToLogin() {
@@ -36,13 +41,5 @@ class ForgotPasswordController extends GetxController {
       return;
     }
     NavigationHelper.offNamed(RouteNames.authentication);
-  }
-
-  @override
-  void onClose() {
-    emailController
-      ..removeListener(_syncEmail)
-      ..dispose();
-    super.onClose();
   }
 }

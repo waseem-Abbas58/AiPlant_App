@@ -103,7 +103,7 @@ class _LoginViewState extends State<LoginView>
                     scaleBegin: 0.98,
                     slideBegin: const Offset(0, 0.10),
                     child: CustomText(
-                      'Welcome Back ',
+                      'Welcome Back',
                       style: textTheme.headlineSmall?.copyWith(
                         height: 1.2,
                         letterSpacing: -0.3,
@@ -281,7 +281,7 @@ class _LoginScaffold extends StatelessWidget {
           AppSpacing.large.w,
           AppSpacing.extraLarge.h,
           AppSpacing.large.w,
-          AppSpacing.large.h,
+          AppSpacing.large.h + MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: child,
       ),
@@ -297,7 +297,7 @@ class _LoginScaffold extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.white,
         extendBody: true,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: Stack(
           fit: StackFit.expand,
           children: [

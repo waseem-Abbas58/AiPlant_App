@@ -74,18 +74,29 @@ class AuthOtpInput extends StatelessWidget {
               autocorrect: false,
               enableSuggestions: false,
               showCursor: false,
-              enableInteractiveSelection: true,
+              enableInteractiveSelection: false,
               style: const TextStyle(
                 color: Colors.transparent,
-                fontSize: 1,
-                height: 0.01,
+                fontSize: 16,
+                height: 1.2,
               ),
               cursorColor: Colors.transparent,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(length),
+                const _OtpCaretAtEndFormatter(),
               ],
               autofillHints: const [AutofillHints.oneTimeCode],
+              onTap: () {
+                controller.selection = TextSelection.collapsed(
+                  offset: controller.text.length,
+                );
+              },
+              onChanged: (value) {
+                controller.selection = TextSelection.collapsed(
+                  offset: value.length,
+                );
+              },
               onSubmitted: (_) => onSubmitted?.call(),
               decoration: const InputDecoration(
                 border: InputBorder.none,
@@ -130,7 +141,7 @@ class _OtpCell extends StatelessWidget {
       borderColor = AuthFormStyle.focus;
       borderWidth = AppBorders.widthThick;
     } else {
-      borderColor = AppColors.border;
+      borderColor = AppColors.border.withValues(alpha: 0.52);
       borderWidth = AppBorders.widthRegular;
     }
 
@@ -142,6 +153,13 @@ class _OtpCell extends StatelessWidget {
         color: AuthFormStyle.fill,
         borderRadius: BorderRadius.circular(AuthFormStyle.fieldRadius.r),
         border: Border.all(color: borderColor, width: borderWidth),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: CustomText(
         digit,
@@ -153,6 +171,21 @@ class _OtpCell extends StatelessWidget {
         fontWeight: FontWeight.w700,
         textAlign: TextAlign.center,
       ),
+    );
+  }
+}
+
+class _OtpCaretAtEndFormatter extends TextInputFormatter {
+  const _OtpCaretAtEndFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return newValue.copyWith(
+      selection: TextSelection.collapsed(offset: newValue.text.length),
+      composing: TextRange.empty,
     );
   }
 }

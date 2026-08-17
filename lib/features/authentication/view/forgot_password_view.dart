@@ -21,26 +21,37 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
   static final Duration _entranceDuration =
       AppDurations.slow + AppDurations.medium;
 
+  final TextEditingController _emailController = TextEditingController();
+
   late final AnimationController _entrance;
+  late final ForgotPasswordController _auth;
 
   @override
   void initState() {
     super.initState();
+    _auth = Get.find<ForgotPasswordController>();
+    _emailController.addListener(_syncEmail);
+    _syncEmail();
     _entrance = AnimationController(
       vsync: this,
       duration: _entranceDuration,
     )..forward();
   }
 
+  void _syncEmail() => _auth.syncEmail(_emailController.text);
+
   @override
   void dispose() {
+    _emailController
+      ..removeListener(_syncEmail)
+      ..dispose();
     _entrance.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ForgotPasswordController>();
+    final controller = _auth;
     final textTheme = Theme.of(context).textTheme;
     final style = AuthFormStyle(textTheme);
 
@@ -107,8 +118,9 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
                     begin: 0.34,
                     end: 0.62,
                     slideBegin: const Offset(0, 0.08),
-                    child: CustomTextField(
-                      controller: controller.emailController,
+                    child: AuthFieldSurface(
+                      child: CustomTextField(
+                      controller: _emailController,
                       hintText: 'Email address',
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.done,
@@ -116,6 +128,8 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
                       enableSuggestions: false,
                       isDense: true,
                       fillColor: AuthFormStyle.fill,
+                      enabledBorderColor: AuthFormStyle.enabledBorder,
+                      enabledBorderWidth: AuthFormStyle.enabledBorderWidth,
                       focusedBorderColor: AuthFormStyle.focus,
                       cursorColor: AuthFormStyle.focus,
                       borderRadius: AuthFormStyle.fieldRadius,
@@ -131,6 +145,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
                       },
                       prefixIcon:
                           AuthFormStyle.icon(Icons.mail_outline_rounded),
+                    ),
                     ),
                   ),
                   SizedBox(height: AppSpacing.large.h),
@@ -184,7 +199,7 @@ class _ForgotPasswordScaffold extends StatelessWidget {
           AppSpacing.large.w,
           AppSpacing.extraLarge.h,
           AppSpacing.large.w,
-          AppSpacing.large.h,
+          AppSpacing.large.h + MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: child,
       ),
@@ -200,7 +215,7 @@ class _ForgotPasswordScaffold extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.white,
         extendBody: true,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -209,7 +224,7 @@ class _ForgotPasswordScaffold extends StatelessWidget {
               right: 0,
               bottom: 0,
               child: Image(
-                image: AssetImage('assets/images/ForgotPassword.png'),
+                image: AssetImage('assets/images/otp_background.png'),
                 fit: BoxFit.fitWidth,
                 alignment: Alignment.bottomCenter,
                 width: double.infinity,

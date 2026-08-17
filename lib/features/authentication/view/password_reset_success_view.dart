@@ -111,7 +111,8 @@ class _PasswordResetSuccessViewState extends State<PasswordResetSuccessView>
   }
 
   void _goToLogin() {
-    NavigationHelper.offAllNamed(RouteNames.authentication);
+    if (!mounted) return;
+    NavigationHelper.until(RouteNames.authentication);
   }
 
   @override

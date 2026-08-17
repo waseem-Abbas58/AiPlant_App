@@ -25,6 +25,8 @@ class AuthFormStyle {
   static const Color fill = AppColors.background;
   static const Color focus = AppColors.primaryGreen;
   static const double fieldRadius = AppRadius.medium;
+  static final Color enabledBorder = AppColors.border.withValues(alpha: 0.52);
+  static const double enabledBorderWidth = AppBorders.widthRegular;
 
   TextStyle? get hintStyle => textTheme.bodyMedium?.copyWith(
         color: AppColors.mutedText,
@@ -119,7 +121,7 @@ class AuthScaffold extends StatelessWidget {
 class AuthLogo extends StatelessWidget {
   const AuthLogo({
     super.key,
-    this.width = AppSizes.imageLg + AppSpacing.large,
+    this.width = AppSizes.imageLg,
   });
 
   final double width;
@@ -134,6 +136,31 @@ class AuthLogo extends StatelessWidget {
         borderRadius: AppRadius.extraLarge,
         semanticsLabel: AppStrings.appName,
       ),
+    );
+  }
+}
+
+class AuthFieldSurface extends StatelessWidget {
+  const AuthFieldSurface({super.key, required this.child});
+
+  final Widget child;
+
+  static final List<BoxShadow> _shadow = [
+    BoxShadow(
+      color: AppColors.black.withValues(alpha: 0.04),
+      blurRadius: 8,
+      offset: const Offset(0, 1),
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AuthFormStyle.fieldRadius.r),
+        boxShadow: _shadow,
+      ),
+      child: child,
     );
   }
 }
