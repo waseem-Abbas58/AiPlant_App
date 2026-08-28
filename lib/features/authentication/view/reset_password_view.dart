@@ -79,6 +79,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SizedBox(height: AppSpacing.large.h),
             AuthStaggeredEntrance(
               animation: _entrance,
               begin: 0,
@@ -87,14 +88,13 @@ class _ResetPasswordViewState extends State<ResetPasswordView>
               slideBegin: const Offset(0, 0.08),
               child: const AuthLogo(),
             ),
-            SizedBox(height: AppSpacing.extraLarge.h),
             Padding(
               padding: EdgeInsets.fromLTRB(
                 AppSpacing.large.w,
                 AppSpacing.large.h,
                 AppSpacing.large.w,
-                AppSpacing.large.h,
-              ),
+                AppSpacing.small.h,
+              ),  
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -213,7 +213,6 @@ class _ResetPasswordViewState extends State<ResetPasswordView>
                 ],
               ),
             ),
-            SizedBox(height: AppSpacing.large.h),
             AuthStaggeredEntrance(
               animation: _entrance,
               begin: 0.70,
@@ -221,7 +220,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView>
               slideBegin: const Offset(0, 0.08),
               child: AuthFooterPrompt(
                 leading: '',
-                actionLabel: 'Back to Login',
+                actionLabel: 'Back to Login', 
                 onAction: controller.goToLogin,
               ),
             ),

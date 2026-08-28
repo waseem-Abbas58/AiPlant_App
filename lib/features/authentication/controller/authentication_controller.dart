@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/route_names.dart';
+import '../../../core/helpers/app_session.dart';
 import '../../../core/helpers/navigation_helper.dart';
 
 class AuthenticationController extends GetxController {
@@ -15,8 +16,11 @@ class AuthenticationController extends GetxController {
 
   void syncPassword(String value) => password.value = value;
 
-  void submitLogin(GlobalKey<FormState> formKey) {
-    formKey.currentState?.validate();
+  Future<void> submitLogin(GlobalKey<FormState> formKey) async {
+    final isValid = formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
+    await AppSession.markLoggedIn();
+    NavigationHelper.offAllNamed(RouteNames.home);
   }
 
   void onForgotPassword() {

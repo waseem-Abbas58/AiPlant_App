@@ -1,7 +1,22 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 class NavigationHelper {
   NavigationHelper._();
+
+  static Future<T?>? to<T>(
+    Widget Function() page, {
+    dynamic arguments,
+    bool fullscreenDialog = false,
+    Transition? transition,
+  }) {
+    return Get.to<T>(
+      page,
+      arguments: arguments,
+      fullscreenDialog: fullscreenDialog,
+      transition: transition ?? Transition.rightToLeft,
+    );
+  }
 
   static Future<T?>? toNamed<T>(
     String route, {

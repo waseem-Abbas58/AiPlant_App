@@ -7,6 +7,8 @@ import 'config/app_config.dart';
 import 'routes/app_pages.dart';
 import 'routes/route_names.dart';
 import 'theme/app_theme.dart';
+import '../features/profile/controller/profile_controller.dart';
+import '../features/profile/widgets/app_lock_gate.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -31,6 +33,13 @@ class MyApp extends StatelessWidget {
           initialRoute: RouteNames.splash,
           getPages: AppPages.pages,
           defaultTransition: Transition.fadeIn,
+          builder: (context, child) {
+            return AppLockGate(child: child ?? const SizedBox.shrink());
+          },
+          routingCallback: (routing) {
+            if (!Get.isRegistered<ProfileController>()) return;
+            Get.find<ProfileController>().onRouteChanged(routing?.current);
+          },
         );
       },
     );

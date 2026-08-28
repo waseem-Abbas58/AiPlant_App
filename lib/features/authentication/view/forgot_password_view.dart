@@ -63,6 +63,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SizedBox(height: AppSpacing.large.h), 
             AuthStaggeredEntrance(
               animation: _entrance,
               begin: 0,
@@ -148,7 +149,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
                     ),
                     ),
                   ),
-                  SizedBox(height: AppSpacing.large.h),
+                  SizedBox(height: AppSpacing.medium.h),
                   AuthStaggeredEntrance(
                     animation: _entrance,
                     begin: 0.48,

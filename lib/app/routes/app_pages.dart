@@ -15,10 +15,12 @@ import '../../features/authentication/view/reset_password_view.dart';
 import '../../features/authentication/view/signup_view.dart';
 import '../../features/disease_detection/bindings/disease_detection_binding.dart';
 import '../../features/disease_detection/view/disease_detection_view.dart';
-import '../../features/home/bindings/home_binding.dart';
-import '../../features/home/view/home_view.dart';
+import '../../features/main_navigation/bindings/main_navigation_binding.dart';
+import '../../features/main_navigation/view/main_navigation_view.dart';
 import '../../features/my_garden/bindings/my_garden_binding.dart';
+import '../../features/my_garden/bindings/plant_finder_binding.dart';
 import '../../features/my_garden/view/my_garden_view.dart';
+import '../../features/my_garden/view/plant_finder_view.dart';
 import '../../features/onboarding/bindings/onboarding_binding.dart';
 import '../../features/onboarding/view/onboarding_view.dart';
 import '../../features/plant_details/bindings/plant_details_binding.dart';
@@ -27,6 +29,10 @@ import '../../features/plant_scan/bindings/plant_scan_binding.dart';
 import '../../features/plant_scan/view/plant_scan_view.dart';
 import '../../features/profile/bindings/profile_binding.dart';
 import '../../features/profile/view/profile_view.dart';
+import '../../features/quiz/view/quiz_welcome_view.dart';
+import '../../features/suggestions/view/suggestion_detail_view.dart';
+import '../../features/chatbot/bindings/chatbot_binding.dart';
+import '../../features/chatbot/view/chatbot_view.dart';
 import '../../features/reminder/bindings/reminder_binding.dart';
 import '../../features/reminder/view/reminder_view.dart';
 import '../../features/search/bindings/search_binding.dart';
@@ -37,6 +43,7 @@ import '../../features/splash/bindings/splash_binding.dart';
 import '../../features/splash/view/splash_view.dart';
 import '../../features/subscription/bindings/subscription_binding.dart';
 import '../../features/subscription/view/subscription_view.dart';
+import '../../features/home/model/suggestion_article.dart';
 import 'route_names.dart';
 
 class AppPages {
@@ -84,8 +91,8 @@ class AppPages {
     ),
     GetPage(
       name: RouteNames.home,
-      page: HomeView.new,
-      binding: HomeBinding(),
+      page: MainNavigationView.new,
+      binding: MainNavigationBinding(),
     ),
     GetPage(
       name: RouteNames.plantScan,
@@ -113,9 +120,19 @@ class AppPages {
       binding: MyGardenBinding(),
     ),
     GetPage(
+      name: RouteNames.plantFinder,
+      page: PlantFinderView.new,
+      binding: PlantFinderBinding(),
+    ),
+    GetPage(
       name: RouteNames.reminder,
       page: ReminderView.new,
       binding: ReminderBinding(),
+    ),
+    GetPage(
+      name: RouteNames.chat,
+      page: ChatbotView.new,
+      binding: ChatbotBinding(),
     ),
     GetPage(
       name: RouteNames.articles,
@@ -136,6 +153,20 @@ class AppPages {
       name: RouteNames.settings,
       page: SettingsView.new,
       binding: SettingsBinding(),
+    ),
+    GetPage(
+      name: RouteNames.weeklyQuiz,
+      page: QuizWelcomeView.new,
+    ),
+    GetPage(
+      name: RouteNames.suggestionDetail,
+      page: () {
+        final args = Get.arguments;
+        final article = args is SuggestionArticle
+            ? args
+            : SuggestionArticle.samples.first;
+        return SuggestionDetailView(article: article);
+      },
     ),
   ];
 }

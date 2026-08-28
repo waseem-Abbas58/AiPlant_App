@@ -45,5 +45,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo to add a plant to your garden.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo to add a plant to your garden.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Save plant photos to your library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Speak plant-care questions to Ask Botanist.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Unlock the app with Face ID or fingerprint after App Lock.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Turn your spoken plant questions into text.</string>
 </dict>
 </plist>

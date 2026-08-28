@@ -31,7 +31,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
   void initState() {
     super.initState();
     _auth = Get.find<OtpVerificationController>();
-    _otpController.addListener(_syncOtp);
+    _otpController.addListener(_syncOtp); 
     _syncOtp();
     _entrance = AnimationController(
       vsync: this,
@@ -90,6 +90,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          SizedBox(height: AppSpacing.large.h),
           AuthStaggeredEntrance(
             animation: _entrance,
             begin: 0,
@@ -98,14 +99,13 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
             slideBegin: const Offset(0, 0.08),
             child: const AuthLogo(),
           ),
-          SizedBox(height: AppSpacing.extraLarge.h),
           Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacing.large.w,
               AppSpacing.large.h,
               AppSpacing.large.w,
-              AppSpacing.large.h,
-            ),
+              AppSpacing.small.h, 
+            ), 
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -207,7 +207,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView>
                     ),
                   ),
                 ),
-                SizedBox(height: AppSpacing.medium.h),
+                SizedBox(height: AppSpacing.small.h),
                 AuthStaggeredEntrance(
                   animation: _entrance,
                   begin: 0.60,

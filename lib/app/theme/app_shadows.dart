@@ -15,6 +15,19 @@ class AppShadows {
         ),
       ];
 
+  static List<BoxShadow> get diffused => [
+        BoxShadow(
+          color: AppColors.black.withValues(alpha: 0.08),
+          blurRadius: 24,
+          offset: const Offset(0, 10),
+        ),
+        BoxShadow(
+          color: AppColors.black.withValues(alpha: 0.04),
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
+      ];
+
   static List<BoxShadow> get medium => [
         BoxShadow(
           color: AppColors.black.withValues(alpha: 0.10),

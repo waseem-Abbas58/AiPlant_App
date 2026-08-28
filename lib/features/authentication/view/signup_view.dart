@@ -223,7 +223,7 @@ class _SignupViewState extends State<SignupView>
                     ),
                     ),
                   ),
-                  SizedBox(height: AppSpacing.large.h),
+                  SizedBox(height: AppSpacing.medium.h),
                   AuthStaggeredEntrance(
                     animation: _entrance,
                     begin: 0.58,
@@ -238,7 +238,7 @@ class _SignupViewState extends State<SignupView>
                       ),
                     ),
                   ),
-                  SizedBox(height: AppSpacing.medium.h),
+                  SizedBox(height: AppSpacing.small.h),
                   AuthSocialRow(
                     animation: _entrance,
                     onGoogle: controller.onGoogleSignup,

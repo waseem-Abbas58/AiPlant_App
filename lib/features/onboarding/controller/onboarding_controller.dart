@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../app/routes/route_names.dart';
 import '../../../core/constants/app_durations.dart';
+import '../../../core/helpers/app_session.dart';
 import '../../../core/helpers/navigation_helper.dart';
 
 class OnboardingController extends GetxController {
@@ -35,7 +36,8 @@ class OnboardingController extends GetxController {
     );
   }
 
-  void completeOnboarding() {
+  Future<void> completeOnboarding() async {
+    await AppSession.markOnboardingSeen();
     NavigationHelper.offAllNamed(RouteNames.authentication);
   }
 

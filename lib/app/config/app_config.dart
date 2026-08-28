@@ -11,5 +11,5 @@ class AppConfig {
   static const double designHeight = 812;
 
   static const Duration defaultAnimationDuration = AppDurations.normal;
-  static const Duration splashDuration = Duration(seconds: 5);
+  static const Duration splashDuration = Duration(seconds: 3);
 }

@@ -14,6 +14,7 @@ class CustomImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.center,
     this.borderRadius,
     this.placeholder,
     this.errorWidget,
@@ -28,6 +29,7 @@ class CustomImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final Alignment alignment;
   final double? borderRadius;
   final Widget? placeholder;
   final Widget? errorWidget;
@@ -45,6 +47,7 @@ class CustomImage extends StatelessWidget {
             width: width?.w,
             height: height?.h,
             fit: fit,
+            alignment: alignment,
             placeholder: (_, __) =>
                 placeholder ?? _defaultPlaceholder(context),
             errorWidget: (_, __, ___) =>
@@ -55,6 +58,7 @@ class CustomImage extends StatelessWidget {
             width: width?.w,
             height: height?.h,
             fit: fit,
+            alignment: alignment,
             semanticLabel: semanticsLabel,
             errorBuilder: (_, __, ___) =>
                 errorWidget ?? _defaultError(context),

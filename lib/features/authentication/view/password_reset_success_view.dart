@@ -171,7 +171,7 @@ class _PasswordResetSuccessViewState extends State<PasswordResetSuccessView>
                             checkProgress: _checkDraw.value,
                             color: AppColors.primaryGreen,
                             trackColor: AppColors.lightGreen.withValues(
-                              alpha: 0.28,
+                              alpha: 0.28,   
                             ),
                             strokeWidth: AppBorders.widthThick +
                                 AppBorders.widthRegular,

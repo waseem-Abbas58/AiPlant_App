@@ -18,12 +18,18 @@ dependencies:
   cached_network_image: ^3.4.1
   dio: ^5.8.0+1
   image_picker: ^1.1.2
+  file_picker: ^8.1.7
+  camera: ^0.11.2
   permission_handler: ^11.4.0
+  speech_to_text: ^7.3.0
+  flutter_tts: ^4.2.3
   shared_preferences: ^2.5.2
   intl: ^0.20.2
   logger: ^2.5.0
   connectivity_plus: ^6.1.3
   lottie: ^3.3.3
+  local_auth: ^2.3.0
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -37,8 +43,18 @@ flutter:
     - assets/images/
     - assets/images/splash/
     - assets/images/onboarding/
+    - assets/images/home/trending/
+    - assets/images/home/categories/
+    - assets/images/home/remedies/
+    - assets/images/home/tips/
+    - assets/images/home/quiz/
+    - assets/images/home/diseases/
+    - assets/images/home/suggestions/
+    - assets/images/home/premium/
+    - assets/images/garden/soil/
     - assets/icons/
     - assets/icons/social/
+    - assets/icons/tools/
     - assets/svg/
     - assets/animations/
     - assets/lottie/

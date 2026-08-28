@@ -38,6 +38,7 @@ class CustomTextField extends StatelessWidget {
     this.style,
     this.hintStyle,
     this.onTap,
+    this.textAlign = TextAlign.start,
     this.focusedBorderColor,
     this.enabledBorderColor,
     this.enabledBorderWidth,
@@ -45,6 +46,7 @@ class CustomTextField extends StatelessWidget {
     this.autovalidateMode,
     this.isDense = false,
     this.autofillHints,
+    this.height,
   });
 
   final TextEditingController? controller;
@@ -74,6 +76,7 @@ class CustomTextField extends StatelessWidget {
   final TextStyle? style;
   final TextStyle? hintStyle;
   final VoidCallback? onTap;
+  final TextAlign textAlign;
   final Color? focusedBorderColor;
   final Color? enabledBorderColor;
   final double? enabledBorderWidth;
@@ -81,6 +84,7 @@ class CustomTextField extends StatelessWidget {
   final AutovalidateMode? autovalidateMode;
   final bool isDense;
   final Iterable<String>? autofillHints;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -112,13 +116,17 @@ class CustomTextField extends StatelessWidget {
       width: enabledBorderWidth ?? AppBorders.widthThin,
     );
 
+    final fieldHeight = height?.h;
+    final iconMinHeight = fieldHeight ?? AppSizes.textFieldHeight.h;
     final effectivePadding = contentPadding ??
         EdgeInsets.symmetric(
           horizontal: AppSpacing.medium.w,
-          vertical: AppSpacing.medium.h + AppSpacing.extraSmall.h,
+          vertical: fieldHeight != null
+              ? 0
+              : AppSpacing.medium.h + AppSpacing.extraSmall.h,
         );
 
-    return TextFormField(
+    final field = TextFormField(
       controller: controller,
       focusNode: focusNode,
       keyboardType: keyboardType,
@@ -137,6 +145,7 @@ class CustomTextField extends StatelessWidget {
       autocorrect: autocorrect,
       enableSuggestions: enableSuggestions,
       textCapitalization: textCapitalization,
+      textAlign: textAlign,
       textAlignVertical: TextAlignVertical.center,
       onTap: onTap,
       autofillHints: autofillHints,
@@ -150,20 +159,22 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
-        isDense: isDense,
+        isDense: isDense || fieldHeight != null,
         filled: true,
         fillColor: enabled
             ? defaultFill
             : (isDark ? AppColors.darkBackground : AppColors.background),
         prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
+        suffixIcon: suffixIcon, 
         prefixIconConstraints: BoxConstraints(
-          minWidth: AppSizes.iconLg.w,
-          minHeight: AppSizes.textFieldHeight.h,
+          minWidth: prefixIcon == null ? 0 : 40.w,
+          minHeight: 0,
+          maxHeight: fieldHeight ?? double.infinity,
         ),
         suffixIconConstraints: BoxConstraints(
           minWidth: AppSizes.iconLg.w,
-          minHeight: AppSizes.textFieldHeight.h,
+          minHeight: iconMinHeight,
+          maxHeight: fieldHeight ?? double.infinity,
         ),
         contentPadding: effectivePadding,
         hintStyle: hintStyle ??
@@ -191,6 +202,15 @@ class CustomTextField extends StatelessWidget {
         ),
         disabledBorder: subtleBorder,
       ),
+    );
+
+    if (fieldHeight == null) {
+      return field;
+    }
+
+    return SizedBox(
+      height: fieldHeight,
+      child: field,
     );
   }
 }

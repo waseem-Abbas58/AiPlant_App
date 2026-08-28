@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../app/theme/app_radius.dart';
 
 class CustomContainer extends StatelessWidget {
   const CustomContainer({
@@ -20,6 +19,7 @@ class CustomContainer extends StatelessWidget {
     this.constraints,
     this.clipBehavior = Clip.none,
     this.onTap,
+    this.pressScale,
   });
 
   final Widget? child;
@@ -36,6 +36,7 @@ class CustomContainer extends StatelessWidget {
   final BoxConstraints? constraints;
   final Clip clipBehavior;
   final VoidCallback? onTap;
+  final double? pressScale;
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +69,57 @@ class CustomContainer extends StatelessWidget {
 
     if (onTap == null) return container;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: radius ?? BorderRadius.circular(AppRadius.medium.r),
-        child: container,
+    return _IosTap(
+      onTap: onTap!,
+      pressScale: pressScale ?? 1,
+      child: container,
+    );
+  }
+}
+
+class _IosTap extends StatefulWidget {
+  const _IosTap({
+    required this.onTap,
+    required this.child,
+    this.pressScale = 1,
+  });
+
+  final VoidCallback onTap;
+  final Widget child;
+  final double pressScale;
+
+  @override
+  State<_IosTap> createState() => _IosTapState();
+}
+
+class _IosTapState extends State<_IosTap> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed == value) return;
+    setState(() => _pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.onTap();
+      },
+      child: AnimatedScale(
+        scale: _pressed && widget.pressScale != 1 ? widget.pressScale : 1,
+        duration: const Duration(milliseconds: 90),
+        curve: Curves.easeOut,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 90),
+          opacity: _pressed ? 0.86 : 1,
+          child: widget.child,
+        ),
       ),
     );
   }

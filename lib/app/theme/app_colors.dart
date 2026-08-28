@@ -15,6 +15,7 @@ class AppColors {
   static const Color lightBlue = Color(0xFFBBDEFB);
 
   static const Color background = Color(0xFFF7F9F7);
+  static const Color sageBackground = Color(0xFFF4F6F3);
   static const Color surface = white;
   static const Color card = white;
 

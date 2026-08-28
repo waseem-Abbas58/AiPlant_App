@@ -5,6 +5,7 @@ enum AppPermission {
   photos,
   notifications,
   location,
+  microphone,
 }
 
 class PermissionHelper {
@@ -20,6 +21,8 @@ class PermissionHelper {
         return Permission.notification;
       case AppPermission.location:
         return Permission.locationWhenInUse;
+      case AppPermission.microphone:
+        return Permission.microphone;
     }
   }
 
