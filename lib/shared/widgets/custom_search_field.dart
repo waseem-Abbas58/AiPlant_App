@@ -25,6 +25,7 @@ class CustomSearchField extends StatefulWidget {
     this.fillColor,     
     this.borderRadius, 
     this.height,
+    this.onVoiceResult,
   });
 
   final TextEditingController? controller;
@@ -40,6 +41,7 @@ class CustomSearchField extends StatefulWidget {
   final Color? fillColor;
   final double? borderRadius;
   final double? height;
+  final ValueChanged<String>? onVoiceResult;
 
   @override
   State<CustomSearchField> createState() => _CustomSearchFieldState();
@@ -121,6 +123,12 @@ class _CustomSearchFieldState extends State<CustomSearchField> {
           offset: _controller.text.length,
         );
         widget.onChanged?.call(_controller.text);
+        if (result.finalResult) {
+          final spoken = _controller.text.trim();
+          if (spoken.isNotEmpty) {
+            widget.onVoiceResult?.call(spoken);
+          }
+        }
       },
       listenFor: const Duration(seconds: 20),
       pauseFor: const Duration(seconds: 3),
@@ -205,7 +213,7 @@ class _CustomSearchFieldState extends State<CustomSearchField> {
                       _iconButton(
                         icon: _listening
                             ? Icons.stop_rounded
-                            : Icons.mic_none_rounded,
+                            : Icons.mic_rounded,
                         color: _listening ? AppColors.error : iconColor,
                         tooltip: _listening ? 'Stop' : 'Voice search',
                         onPressed: widget.enabled

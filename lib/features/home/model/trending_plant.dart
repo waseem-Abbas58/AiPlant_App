@@ -183,6 +183,22 @@ class TrendingPlant {
     return scored.take(count).map((pair) => pair.$1).toList();
   }
 
+  static TrendingPlant? byImagePath(String path) {
+    for (final plant in catalog) {
+      if (plant.imagePath == path) return plant;
+    }
+    return null;
+  }
+
+  static TrendingPlant? byName(String name) {
+    final n = name.trim().toLowerCase();
+    if (n.isEmpty) return null;
+    for (final plant in catalog) {
+      if (plant.name.toLowerCase() == n) return plant;
+    }
+    return null;
+  }
+
   static const catalog = <TrendingPlant>[
     TrendingPlant(
       name: 'Petunia',

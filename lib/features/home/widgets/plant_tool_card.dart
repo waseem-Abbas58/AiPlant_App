@@ -27,7 +27,7 @@ class PlantToolCard extends StatelessWidget {
       onTap: onTap,
       pressScale: 0.97,
       color: AppColors.white,
-      borderRadius: AppRadius.large,
+      borderRadius: AppRadius.medium,
       shadow: AppShadows.soft,
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(

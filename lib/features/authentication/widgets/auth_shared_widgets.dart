@@ -25,8 +25,22 @@ class AuthFormStyle {
   static const Color fill = AppColors.background;
   static const Color focus = AppColors.primaryGreen;
   static const double fieldRadius = AppRadius.medium;
-  static final Color enabledBorder = AppColors.border.withValues(alpha: 0.52);
+  static const double fieldHeight = AppSizes.textFieldHeight;
+  static final Color enabledBorder = AppColors.border;
   static const double enabledBorderWidth = AppBorders.widthRegular;
+  static final Color disabledButtonFill = Color.alphaBlend(
+    AppColors.primaryGreen.withValues(alpha: 0.16),
+    AppColors.white,
+  );
+  static final Color disabledButtonText =
+      AppColors.primaryGreen.withValues(alpha: 0.62);
+  static final List<BoxShadow> primaryButtonShadow = [
+    BoxShadow(
+      color: AppColors.primaryGreen.withValues(alpha: 0.22),
+      blurRadius: 14,
+      offset: const Offset(0, 5),
+    ),
+  ];
 
   TextStyle? get hintStyle => textTheme.bodyMedium?.copyWith(
         color: AppColors.mutedText,
@@ -264,7 +278,7 @@ class AuthPrimaryButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.large.r),
         boxShadow: interactive
-            ? (shadow ?? AppShadows.soft)
+            ? (shadow ?? AuthFormStyle.primaryButtonShadow)
             : AppShadows.none,
       ),
       child: CustomButton(
@@ -274,8 +288,9 @@ class AuthPrimaryButton extends StatelessWidget {
         onPressed: interactive ? onPressed : null,
         backgroundColor: AppColors.primaryGreen,
         disabledBackgroundColor:
-            disabledBackgroundColor ?? AppColors.divider,
-        disabledTextColor: disabledTextColor ?? AppColors.secondaryText,
+            disabledBackgroundColor ?? AuthFormStyle.disabledButtonFill,
+        disabledTextColor:
+            disabledTextColor ?? AuthFormStyle.disabledButtonText,
         borderRadius: AppRadius.large,
         height: AppSizes.buttonHeightLg,
         textStyle: textTheme.labelLarge?.copyWith(

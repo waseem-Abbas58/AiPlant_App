@@ -11,6 +11,7 @@ import '../../../core/helpers/navigation_helper.dart';
 import '../../../shared/widgets/custom_container.dart';
 import '../../../shared/widgets/custom_text.dart';
 import '../data/plant_identify_repository.dart';
+import '../data/plant_scene_gate.dart';
 import '../model/plant_identify_result.dart';
 
 class IdentifyProcessingView extends StatefulWidget {
@@ -30,6 +31,7 @@ class IdentifyProcessingView extends StatefulWidget {
 class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
   var _step = 0;
   var _finished = false;
+  var _rejected = false;
 
   String get _detectLabel => switch (widget.categoryId) {
         'tree' => 'Looking at leaf and bark',
@@ -39,13 +41,10 @@ class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
         _ => 'Looking at the leaf',
       };
 
-  String get _identifyLabel => switch (widget.categoryId) {
-        'tree' => 'Previewing a tree',
-        'mushroom' => 'Previewing a mushroom',
-        'weed' => 'Previewing a weed',
-        'disease' => 'Previewing plant health',
-        _ => 'Previewing a houseplant',
-      };
+  String get _findLabel {
+    if (_rejected) return 'No plant in this photo';
+    return 'Looking for a plant';
+  }
 
   PlantIdentifyRepository get _repository {
     if (Get.isRegistered<PlantIdentifyRepository>()) {
@@ -67,16 +66,39 @@ class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
   }
 
   Future<void> _run() async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 380));
     if (!mounted || _finished) return;
     setState(() => _step = 1);
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    final plantLike = await PlantSceneGate.looksLikePlant(
+      widget.imagePath,
+      categoryId: widget.categoryId,
+    );
     if (!mounted || _finished) return;
-    setState(() => _step = 2);
+    if (!plantLike) {
+      setState(() => _rejected = true);
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+      if (!mounted || _finished) return;
+      _finished = true;
+      Navigator.of(context).pop<PlantIdentifyResult>(
+        PlantIdentifyResult.notAPlant(widget.imagePath),
+      );
+      return;
+    }
     final result = await _repository.identifyFromImage(
       widget.imagePath,
       categoryId: widget.categoryId,
     );
+    if (!mounted || _finished) return;
+    if (!result.isIdentified) {
+      setState(() => _rejected = true);
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+      if (!mounted || _finished) return;
+      _finished = true;
+      Navigator.of(context).pop<PlantIdentifyResult>(result);
+      return;
+    }
+    setState(() => _step = 2);
+    await Future<void>.delayed(const Duration(milliseconds: 320));
     if (!mounted || _finished) return;
     setState(() => _step = 3);
     await Future<void>.delayed(const Duration(milliseconds: 280));
@@ -120,43 +142,75 @@ class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
                   ),
                 ),
               ),
-              SizedBox(height: AppSpacing.extraLarge.h),
+              SizedBox(height: AppSpacing.large.h),
               const CustomText(
-                'Preview match',
+                'Identifying',
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
                 color: AppColors.white,
+                letterSpacing: -0.4,
               ),
-              SizedBox(height: AppSpacing.extraSmall.h),
+              SizedBox(height: 6.h),
               const CustomText(
-                'Live ID connects when AI is ready',
-                fontSize: 15,
+                'Live ID when AI is connected',
+                fontSize: 12,
                 fontWeight: FontWeight.w400,
-                color: Color(0xFFC8C8C8),
+                color: Color(0xFF8A8A8A),
               ),
-              SizedBox(height: AppSpacing.extraLarge.h),
-              _StepRow(label: 'Reading the photo', done: _step >= 0, active: _step == 0),
-              SizedBox(height: AppSpacing.medium.h),
-              _StepRow(
-                label: _detectLabel,
-                done: _step >= 1,
-                active: _step == 1,
-              ),
-              SizedBox(height: AppSpacing.medium.h),
-              _StepRow(
-                label: _identifyLabel,
-                done: _step >= 2,
-                active: _step == 2,
-              ),
-              SizedBox(height: AppSpacing.medium.h),
-              _StepRow(
-                label: 'Picking similar examples',
-                done: _step >= 3,
-                active: _step == 3,
+              SizedBox(height: AppSpacing.large.h),
+              _StepColumn(
+                children: [
+                  _StepRow(
+                    label: 'Reading the photo',
+                    done: _step >= 1,
+                    active: _step == 0,
+                  ),
+                  _StepRow(
+                    label: _findLabel,
+                    done: !_rejected && _step >= 2,
+                    active: !_rejected && _step == 1,
+                    failed: _rejected,
+                  ),
+                  _StepRow(
+                    label: _detectLabel,
+                    done: !_rejected && _step >= 3,
+                    active: !_rejected && _step == 2,
+                  ),
+                  _StepRow(
+                    label: 'Picking similar examples',
+                    done: !_rejected && _step >= 3,
+                    active: !_rejected && _step == 3,
+                  ),
+                ],
               ),
               const Spacer(flex: 2),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StepColumn extends StatelessWidget {
+  const _StepColumn({required this.children});
+
+  final List<Widget> children;
+
+  static const _gap = 12.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: IntrinsicWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) SizedBox(height: _gap.h),
+              children[i],
+            ],
+          ],
         ),
       ),
     );
@@ -168,46 +222,69 @@ class _StepRow extends StatelessWidget {
     required this.label,
     required this.done,
     required this.active,
+    this.failed = false,
   });
 
   final String label;
   final bool done;
   final bool active;
+  final bool failed;
 
   @override
   Widget build(BuildContext context) {
-    final color = done || active ? AppColors.lightGreen : const Color(0xFF8A8A8A);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CustomContainer(
-          width: 26,
-          height: 26,
-          color: done ? AppColors.lightGreen : Colors.transparent,
-          borderRadius: AppRadius.circular,
-          border: done ? null : Border.all(color: color, width: 1.6),
-          alignment: Alignment.center,
-          child: done
-              ? Icon(Icons.check_rounded, size: 16.sp, color: AppColors.nearBlack)
-              : active
-                  ? SizedBox(
-                      width: 12.w,
-                      height: 12.w,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.6,
-                        color: color,
-                      ),
-                    )
-                  : null,
-        ),
-        SizedBox(width: AppSpacing.small.w),
-        CustomText(
-          label,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ],
+    final color = failed
+        ? AppColors.error
+        : done || active
+            ? AppColors.lightGreen
+            : const Color(0xFF8A8A8A);
+    return SizedBox(
+      height: 28.h,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomContainer(
+            width: 22,
+            height: 22,
+            color: done
+                ? AppColors.lightGreen
+                : failed
+                    ? AppColors.error
+                    : Colors.transparent,
+            borderRadius: AppRadius.circular,
+            border: done || failed ? null : Border.all(color: color, width: 1.5),
+            alignment: Alignment.center,
+            child: done
+                ? Icon(
+                    Icons.check_rounded,
+                    size: 14.sp,
+                    color: AppColors.nearBlack,
+                  )
+                : failed
+                    ? Icon(
+                        Icons.close_rounded,
+                        size: 14.sp,
+                        color: AppColors.white,
+                      )
+                    : active
+                        ? SizedBox(
+                            width: 10.w,
+                            height: 10.w,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              color: color,
+                            ),
+                          )
+                        : null,
+          ),
+          SizedBox(width: AppSpacing.small.w),
+          CustomText(
+            label,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -15,10 +15,16 @@ import '../../../shared/widgets/custom_search_field.dart';
 import '../../../shared/widgets/custom_text.dart';
 import '../controller/home_controller.dart';
 import '../model/browse_category.dart';
+import '../model/gardening_tip.dart';
+import '../model/home_remedy.dart';
+import '../model/plant_disease.dart';
 import '../model/suggestion_article.dart';
 import '../model/trending_plant.dart';
 import '../widgets/category_card.dart';
 import 'category_plants_view.dart';
+import 'gardening_tips_list_view.dart';
+import 'home_remedy_view.dart';
+import 'plant_disease_view.dart';
 import '../widgets/disease_grid_item.dart';
 import '../widgets/home_section_header.dart';
 import '../widgets/home_greeting_header.dart';
@@ -27,6 +33,7 @@ import '../widgets/plant_tool_card.dart';
 import '../widgets/trending_card.dart';
 import '../widgets/vertical_image_card.dart';
 import '../../chatbot/data/botanist_navigator.dart';
+import '../../quiz/model/weekly_quiz.dart';
 import '../../main_navigation/controller/main_navigation_controller.dart';
 import '../../my_garden/controller/my_garden_controller.dart';
 import '../../my_garden/widgets/daily_care_summary.dart';
@@ -51,6 +58,11 @@ class HomeView extends GetView<HomeController> {
   static void _openCategory(BrowseCategory category) {
     HapticFeedback.selectionClick();
     NavigationHelper.to(() => CategoryPlantsView(category: category));
+  }
+
+  static void _openGardeningTipsList() {
+    HapticFeedback.selectionClick();
+    NavigationHelper.to(() => const GardeningTipsListView());
   }
 
   static VoidCallback? onPlantToolTap(String title) {
@@ -131,88 +143,11 @@ class HomeView extends GetView<HomeController> {
 
   static const _categories = BrowseCategory.grid;
 
-  static const List<VerticalImageCard> _homeRemedies = [
-    VerticalImageCard(
-      imagePath: 'assets/images/home/remedies/cinnamon_root_rot.png',
-      title: 'Cinnamon Shield for Root Rot',
-    ),
-    VerticalImageCard(
-      imagePath: 'assets/images/home/remedies/aloe_sunburn.png',
-      title: 'Aloe Gel for Leaf Burn',
-    ),
-    VerticalImageCard(
-      imagePath: 'assets/images/home/remedies/neem_oil_pests.png',
-      title: 'Neem Oil Spray for Pests',
-    ), 
-    VerticalImageCard(
-      imagePath: 'assets/images/home/remedies/eggshell_calcium.png',
-      title: 'Eggshells for Calcium', 
-    ),
-    VerticalImageCard(  
-      imagePath: 'assets/images/home/remedies/banana_peel_fertilizer.png',
-      title: 'Banana Peel Fertilizer',
-    ),
-  ];
+  static const _homeRemedies = HomeRemedy.catalog;
 
-  static const List<HorizontalContentCard> _gardeningTips = [
-    HorizontalContentCard(
-      imagePath: 'assets/images/home/tips/trim_spent_blooms.png',
-      title: 'Trim Spent Blooms',
-      subtitle:
-          'Deadhead faded flowers on houseplants like begonias and peace lilies so energy goes into new growth.',
-    ),
-    HorizontalContentCard(
-      imagePath: 'assets/images/home/tips/let_soil_dry.png',
-      title: 'Let Soil Dry First',
-      subtitle:
-          'Check the top inch with your finger before watering. Most houseplants prefer a light dry spell over soggy roots.',
-    ),
-    HorizontalContentCard(
-      imagePath: 'assets/images/home/tips/rotate_for_light.png',
-      title: 'Rotate for Even Light',
-      subtitle:
-          'Turn the pot a quarter turn each week so every side gets sun and the plant grows full instead of leaning.',
-    ),
-    HorizontalContentCard(
-      imagePath: 'assets/images/home/tips/wipe_dusty_leaves.png',
-      title: 'Wipe Dusty Leaves',
-      subtitle:
-          'Dust blocks light. Wipe leaves with a soft damp cloth so the plant can photosynthesize and stay glossy.',
-    ),
-    HorizontalContentCard(
-      imagePath: 'assets/images/home/tips/bottom_watering.png',
-      title: 'Bottom Watering',
-      subtitle:
-          'Set the pot in a saucer of water and let the soil drink from below. Stop once the top feels evenly moist.',
-    ),
-  ];
+  static const _gardeningTips = GardeningTip.catalog;
 
-  static const List<DiseaseGridItem> _plantDiseases = [
-    DiseaseGridItem(
-      imagePath: 'assets/images/home/diseases/downy_mildew.png',
-      title: 'Downy Mildew',
-    ),
-    DiseaseGridItem(
-      imagePath: 'assets/images/home/diseases/anthracnose.png',
-      title: 'Anthracnose',
-    ),
-    DiseaseGridItem(
-      imagePath: 'assets/images/home/diseases/spider_mites.png',
-      title: 'Spider Mites',
-    ),
-    DiseaseGridItem(
-      imagePath: 'assets/images/home/diseases/botrytis.png',
-      title: 'Botrytis',
-    ),
-    DiseaseGridItem(
-      imagePath: 'assets/images/home/diseases/late_blight.png',
-      title: 'Late Blight',
-    ),
-    DiseaseGridItem(
-      imagePath: 'assets/images/home/diseases/powdery_mildew.png',
-      title: 'Powdery Mildew',
-    ),
-  ];
+  static const _plantDiseases = PlantDisease.catalog;
 
   @override
   Widget build(BuildContext context) {
@@ -232,11 +167,11 @@ class HomeView extends GetView<HomeController> {
               AppSpacing.medium.w,
               AppSpacing.medium.h,
               AppSpacing.medium.w,
-              110.h,
+              124.h,
             ),
             children: [
               const HomeGreetingHeader(),
-                SizedBox(height: AppSpacing.small.h),
+                SizedBox(height: AppSpacing.medium.h),
                 DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppRadius.large.r),
@@ -246,9 +181,14 @@ class HomeView extends GetView<HomeController> {
                     hintText: 'Search plants, flowers, trees, tips',
                     fillColor: AppColors.white,
                     borderRadius: AppRadius.large,
-                    height: 45,
+                    height: 48,
                     readOnly: true,
+                    enableVoice: true,
                     onTap: () => NavigationHelper.toNamed(RouteNames.search),
+                    onVoiceResult: (spoken) => NavigationHelper.toNamed(
+                      RouteNames.search,
+                      arguments: spoken,
+                    ),
                   ),
                 ),
                 SizedBox(height: AppSpacing.medium.h),   
@@ -260,12 +200,12 @@ class HomeView extends GetView<HomeController> {
                     }
                     return Padding(
                       padding: EdgeInsets.only(bottom: AppSpacing.medium.h),
-                      child: DailyCareSummary(garden: garden),
-                    );
-                  }),
-                const HomeSectionHeader('Plant Tools'),
+                      child: DailyCareSummary(garden: garden),   
+                    ); 
+                  }), 
+                const HomeSectionHeader(' Plant Tools'),          
                 Obx(() {
-                  final expanded = controller.showAllPlantTools.value;
+                  final expanded = controller.showAllPlantTools.value;  
                   final tools = expanded
                       ? _plantTools
                       : _plantTools.take(4).toList();
@@ -295,11 +235,11 @@ class HomeView extends GetView<HomeController> {
                           onTap: controller.togglePlantTools,
                           pressScale: 0.98,
                           color: AppColors.white,
-                          borderRadius: AppRadius.large,  
+                          borderRadius: AppRadius.medium,  
                           shadow: AppShadows.soft,
                           alignment: Alignment.center,
                           padding: EdgeInsets.symmetric(
-                            vertical: AppSpacing.medium.h,
+                            vertical: 12.h,
                           ),
                           child: CustomText(
                             expanded ? 'Show less' : 'Show more tools',
@@ -310,7 +250,7 @@ class HomeView extends GetView<HomeController> {
                     ],
                   );
                 }),
-                SizedBox(height: AppSpacing.medium.h),
+                SizedBox(height: AppSpacing.large.h),
                 const HomeSectionHeader('Trending'),
                         SizedBox(
                           height: 210.h,
@@ -328,20 +268,19 @@ class HomeView extends GetView<HomeController> {
                                 onTap: () => NavigationHelper.to(
                                   () => TrendingPlantView(plant: plant),
                                   fullscreenDialog: true,
-                                  transition: Transition.downToUp,
+                                  transition: Transition.downToUp, 
                                 ),
-                              );
+                              ); 
                             },
-                          ),
-                        ),
-                        SizedBox(height: AppSpacing.medium.h),
+                          ),  
+                        ), 
+                        SizedBox(height: AppSpacing.large.h),
                 const HomeSectionHeader(
-                  'Browse by Category',
-                  bottom: AppSpacing.medium,
-                ),
-                Obx(() {
+                  'Browse by Category',    
+                ),  
+                Obx(() { 
                   final expanded = controller.showAllCategories.value;
-                  final categories = expanded
+                  final categories = expanded 
                       ? _categories
                       : _categories.take(4).toList();
 
@@ -369,27 +308,18 @@ class HomeView extends GetView<HomeController> {
                             ),
                         ],
                       ),
-                      if (expanded) ...[
-                        SizedBox(height: 6.h),
-                        CategoryWideCard(
-                          title: BrowseCategory.edible.title,
-                          imagePath: BrowseCategory.edible.imagePath,
-                          color: BrowseCategory.edible.color,
-                          onTap: () => _openCategory(BrowseCategory.edible),
-                        ),
-                      ],
-                      SizedBox(height: AppSpacing.medium.h),
+                      SizedBox(height: AppSpacing.small.h),
                       CustomContainer(
                         onTap: controller.toggleCategories,
                         color: AppColors.white,
-                        borderRadius: AppRadius.large,
+                        borderRadius: AppRadius.medium,
                         shadow: AppShadows.soft, 
                         alignment: Alignment.center, 
                         padding: EdgeInsets.symmetric(
-                          vertical: AppSpacing.medium.h,
+                          vertical: 12.h,
                         ),
                         child: CustomText(
-                          expanded ? 'Show Less' : 'Show More',
+                          expanded ? 'Show less' : 'Show more',
                           fontWeight: FontWeight.w700,
                           color: AppColors.primaryText,
                         ),
@@ -398,7 +328,9 @@ class HomeView extends GetView<HomeController> {
                   );
                 }),
                         SizedBox(height: AppSpacing.large.h),
-                        const HomeSectionHeader('Home Remedies'),
+                        const HomeSectionHeader(
+                          'Home Remedies',
+                        ),
                         SizedBox(
                           height: VerticalImageCard.extent, 
                           child: ListView.separated(
@@ -407,11 +339,46 @@ class HomeView extends GetView<HomeController> {
                             itemCount: _homeRemedies.length,
                             separatorBuilder: (_, __) =>
                                 SizedBox(width: AppSpacing.small.w),
-                            itemBuilder: (_, index) => _homeRemedies[index],
+                            itemBuilder: (_, index) {
+                              final remedy = _homeRemedies[index];
+                              return VerticalImageCard(
+                                imagePath: remedy.imagePath,
+                                title: remedy.cardTitle ?? remedy.title,
+                                heroTag: remedy.imagePath,
+                                chip: remedy.problemLabel,
+                                onTap: () => NavigationHelper.to(
+                                  () => HomeRemedyView(remedy: remedy),
+                                  fullscreenDialog: true,
+                                  transition: Transition.downToUp,
+                                ),
+                              );
+                            },
                           ),
                         ),
                         SizedBox(height: AppSpacing.large.h),
-                        const HomeSectionHeader('Gardening Tips'),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: AppSpacing.small.h),
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: HomeSectionHeader(
+                                  'Gardening Tips',
+                                  bottom: 0,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: _openGardeningTipsList,
+                                behavior: HitTestBehavior.opaque,
+                                child: const CustomText(
+                                  'See all',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryGreen,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         SizedBox(
                           height: HorizontalContentCard.extent,
                           child: ListView.separated(
@@ -420,42 +387,89 @@ class HomeView extends GetView<HomeController> {
                             itemCount: _gardeningTips.length,
                             separatorBuilder: (_, __) =>
                                 SizedBox(width: AppSpacing.small.w),
-                            itemBuilder: (_, index) => _gardeningTips[index],
+                            itemBuilder: (_, index) {
+                              final tip = _gardeningTips[index];
+                              return HorizontalContentCard(
+                                imagePath: tip.imagePath,
+                                title: tip.listTitle,
+                                subtitle: tip.cardLine,
+                                color: AppColors.sageBackground,
+                                titleMaxLines: 1,
+                                subtitleMaxLines: 3,
+                                onTap: _openGardeningTipsList,
+                              );
+                            },
                           ),
                         ),
                         SizedBox(height: AppSpacing.large.h),
                         const HomeSectionHeader('Weekly Quiz'),
-                        HorizontalContentCard(
-                          expand: true,
-                          imagePath: AppImages.weeklyQuiz,
-                          imageFit: BoxFit.cover,
-                          eyebrow: 'Week 34',
-                          title: 'How much of a botanist are you?',
-                          actionLabel: 'Take the Quiz!', 
-                          onTap: () => NavigationHelper.toNamed(
-                            RouteNames.weeklyQuiz, 
-                            arguments: AppImages.weeklyQuiz,    
-                                              
-                          ),
-                        ), 
+                        Obx(() {
+                          final score = controller.quizScore.value;
+                          final played = score != null;
+                          return HorizontalContentCard(
+                            expand: true,
+                            imagePath: AppImages.weeklyQuiz,
+                            imageFit: BoxFit.cover,
+                            eyebrow: WeeklyQuiz.weekLabel,
+                            title: played
+                                ? WeeklyQuiz.resultTitle(
+                                    score,
+                                    WeeklyQuiz.questions.length,
+                                  )
+                                : WeeklyQuiz.prompt,
+                            actionLabel:
+                                played ? 'See your score' : 'Take the Quiz!',
+                            chip: played
+                                ? '$score/${WeeklyQuiz.questions.length}'
+                                : null,
+                            onTap: () => NavigationHelper.toNamed(
+                              RouteNames.weeklyQuiz,
+                              arguments: AppImages.weeklyQuiz,
+                            ),
+                          );
+                        }), 
                         SizedBox(height: AppSpacing.large.h),
                         const HomeSectionHeader('Common Plant Diseases'),
                         CustomContainer(
-                          color: AppColors.white, 
+                          color: AppColors.white,
                           borderRadius: AppRadius.extraLarge,
                           shadow: AppShadows.diffused,
                           padding: EdgeInsets.all(AppSpacing.medium.w),
-                          child: GridView(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisExtent: 118.h,
-                              mainAxisSpacing: AppSpacing.medium.h,
-                              crossAxisSpacing: AppSpacing.small.w,
-                            ),
-                            children: _plantDiseases,
+                          child: Column(
+                            children: [
+                              for (var row = 0; row < 2; row++) ...[
+                                if (row > 0)
+                                  SizedBox(height: AppSpacing.medium.h),
+                                SizedBox(
+                                  height: 118.h,
+                                  child: Row(
+                                    children: [
+                                      for (var col = 0; col < 3; col++) ...[
+                                        if (col > 0)
+                                          SizedBox(
+                                            width: AppSpacing.small.w,
+                                          ),
+                                        Expanded(
+                                          child: DiseaseGridItem(
+                                            imagePath: _plantDiseases[
+                                                    row * 3 + col]
+                                                .imagePath,
+                                            title: _plantDiseases[row * 3 + col]
+                                                .title,
+                                            onTap: () => PlantDiseaseView.open(
+                                              _plantDiseases[row * 3 + col],
+                                              heroTag: _plantDiseases[
+                                                      row * 3 + col]
+                                                  .imagePath,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                         SizedBox(height: AppSpacing.large.h),
@@ -463,13 +477,17 @@ class HomeView extends GetView<HomeController> {
                         for (final article in SuggestionArticle.samples) ...[
                           HorizontalContentCard(
                             expand: true,
+                            height: 136,
                             imagePath: article.imagePath,
                             eyebrow: article.category,
                             title: article.title,
+                            titleFontSize: 16,
+                            titleFontWeight: FontWeight.w700,
+                            pinActionToBottom: false,
                             actionLabel: 'Go to learn >',
-                            onTap: () => NavigationHelper.to(
-                              () => SuggestionDetailView(article: article),
-                              transition: Transition.fadeIn,
+                            onTap: () => SuggestionDetailView.open(
+                              article, 
+                              heroTag: article.imagePath,
                             ),
                             heroTag: article.imagePath,
                           ),

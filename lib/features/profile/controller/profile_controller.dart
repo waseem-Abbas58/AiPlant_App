@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,6 +29,7 @@ class ProfileController extends GetxController {
   static const _lockFailsKey = 'profile_lock_fails';
   static const _lockUntilKey = 'profile_lock_until';
   static const _lockStageKey = 'profile_lock_stage';
+  static const _userIdKey = 'profile_user_id';
 
   static const _openRoutes = {
     RouteNames.splash,
@@ -40,6 +42,7 @@ class ProfileController extends GetxController {
     RouteNames.passwordResetSuccess,
   };
 
+  final RxString userId = ''.obs;
   final RxString displayName = 'Plant lover'.obs;
   final RxString email = ''.obs;
   final RxString gardenName = ''.obs;
@@ -84,6 +87,13 @@ class ProfileController extends GetxController {
   String get emailLabel {
     final value = email.value.trim();
     return value.isEmpty ? 'No email yet' : value;
+  }
+
+  String get userIdLabel {
+    final id = userId.value;
+    if (id.isEmpty) return '—';
+    if (id.length <= 16) return id;
+    return '${id.substring(0, 16)}...';
   }
 
   String unsetOr(String value) {
@@ -132,6 +142,8 @@ class ProfileController extends GetxController {
     await prefs.remove(_lockFailsKey);
     await prefs.remove(_lockUntilKey);
     await prefs.remove(_lockStageKey);
+    await prefs.remove(_userIdKey);
+    userId.value = '';
     await AppSession.clearSession();
     NavigationHelper.offAllNamed(RouteNames.authentication);
   }
@@ -175,6 +187,26 @@ class ProfileController extends GetxController {
       lockoutUntil.value = DateTime.fromMillisecondsSinceEpoch(untilMillis);
     }
     refreshLockout();
+    await _ensureUserId(prefs);
+  }
+
+  Future<void> _ensureUserId(SharedPreferences prefs) async {
+    var id = prefs.getString(_userIdKey)?.trim() ?? '';
+    if (id.isEmpty) {
+      id = _newUserId();
+      await prefs.setString(_userIdKey, id);
+    }
+    userId.value = id;
+  }
+
+  static String _newUserId() {
+    const alphabet =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random.secure();
+    return List.generate(
+      20,
+      (_) => alphabet[random.nextInt(alphabet.length)],
+    ).join();
   }
 
   Future<bool> saveProfile({

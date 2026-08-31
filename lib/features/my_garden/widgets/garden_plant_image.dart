@@ -12,6 +12,7 @@ class GardenPlantImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.topCenter,
     this.borderRadius,
   });
 
@@ -20,6 +21,7 @@ class GardenPlantImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final Alignment alignment;
   final BorderRadius? borderRadius;
 
   @override
@@ -30,6 +32,7 @@ class GardenPlantImage extends StatelessWidget {
             width: width,
             height: height,
             fit: fit,
+            alignment: alignment,
             errorBuilder: (_, __, ___) => _fallback(width, height),
           )
         : Image(
@@ -37,7 +40,9 @@ class GardenPlantImage extends StatelessWidget {
             width: width,
             height: height,
             fit: fit,
+            alignment: alignment,
             key: ValueKey(path),
+            gaplessPlayback: true,
             errorBuilder: (_, __, ___) => _fallback(width, height),
           );
 

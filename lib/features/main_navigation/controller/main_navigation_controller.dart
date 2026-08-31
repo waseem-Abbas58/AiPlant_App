@@ -10,12 +10,23 @@ class MainNavigationController extends GetxController {
 
   final RxInt selectedIndex = initialTabIndex.obs;
   int _tabBeforeChat = homeIndex;
+  int _tabBeforeScan = homeIndex;
 
   void onTabTapped(int index) {
     if (index == chatIndex && selectedIndex.value != chatIndex) {
       _tabBeforeChat = selectedIndex.value;
     }
+    if (index == scanIndex && selectedIndex.value != scanIndex) {
+      _tabBeforeScan = selectedIndex.value;
+    }
     selectedIndex.value = index;
+  }
+
+  void closeScan() {
+    if (selectedIndex.value != scanIndex) return;
+    final backTo =
+        _tabBeforeScan == scanIndex ? homeIndex : _tabBeforeScan;
+    selectedIndex.value = backTo;
   }
 
   bool goBackFromChat() {

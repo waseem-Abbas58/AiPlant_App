@@ -14,6 +14,8 @@ class ProfileSettingRow extends StatelessWidget {
     required this.subtitle,
     this.onTap,
     this.destructive = false,
+    this.showChevron = true,
+    this.trailing,
   });
 
   final IconData icon;
@@ -21,6 +23,8 @@ class ProfileSettingRow extends StatelessWidget {
   final String subtitle;
   final VoidCallback? onTap;
   final bool destructive;
+  final bool showChevron;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +74,13 @@ class ProfileSettingRow extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
-            Icons.chevron_right_rounded,
-            size: 22.sp,
-            color: destructive ? AppColors.error : AppColors.mutedText,
-          ),
+          if (trailing != null) trailing!,
+          if (showChevron)
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 22.sp,
+              color: destructive ? AppColors.error : AppColors.mutedText,
+            ),
         ],
       ),
     );

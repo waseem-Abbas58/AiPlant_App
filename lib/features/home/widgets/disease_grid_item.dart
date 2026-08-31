@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../shared/widgets/custom_container.dart';
 import '../../../shared/widgets/custom_text.dart';
 
 class DiseaseGridItem extends StatelessWidget {
@@ -20,8 +21,9 @@ class DiseaseGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return CustomContainer(
       onTap: onTap,
+      pressScale: 0.98,
       child: Column(
         children: [
           Expanded(

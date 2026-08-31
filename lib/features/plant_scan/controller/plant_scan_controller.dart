@@ -70,7 +70,7 @@ class PlantScanController extends GetxController {
 
   void closeScan() {
     if (!Get.isRegistered<MainNavigationController>()) return;
-    Get.find<MainNavigationController>().onTabTapped(0);
+    Get.find<MainNavigationController>().closeScan();
   }
 
   void selectCategory(int index, {bool toxicity = false}) {
@@ -252,7 +252,12 @@ class PlantScanController extends GetxController {
       return;
     }
     if (!result.isIdentified) {
-      NavigationHelper.to(IdentifyFailedView.new);
+      await NavigationHelper.to(
+        () => IdentifyFailedView(
+          reason: result.failReason,
+          categoryId: category.id,
+        ),
+      );
     } else {
       await _finishSuccess(result);
     }
@@ -273,9 +278,21 @@ class PlantScanController extends GetxController {
         openToxicity: toxicityFocus.value,
       ),
     );
-    if (plantId != null && Get.isRegistered<MyGardenController>()) {
-      Get.find<MyGardenController>().openWaterMeter(plantId: plantId);
-    }
     toxicityFocus.value = false;
+    if (plantId == null || plantId.isEmpty) return;
+    if (Get.isRegistered<MainNavigationController>()) {
+      Get.find<MainNavigationController>().onTabTapped(
+        MainNavigationController.gardenIndex,
+      );
+    }
+    if (!Get.isRegistered<MyGardenController>()) return;
+    final garden = Get.find<MyGardenController>();
+    final plant = garden.plantById(plantId);
+    CustomSnackbar.success(
+      title: 'Added to garden',
+      message: plant == null
+          ? 'Saved'
+          : '${plant.name} added to your garden',
+    );
   }
 }

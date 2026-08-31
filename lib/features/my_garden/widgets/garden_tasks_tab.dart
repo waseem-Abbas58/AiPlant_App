@@ -137,7 +137,6 @@ class _GardenTasksTabState extends State<GardenTasksTab> {
                     ? 'Nothing is scheduled for this day.'
                     : 'Add a plant to start a simple care routine.',
                 actionLabel: 'Add Plant',
-                filledAction: !hasPlants,
                 onAction: hasPlants ? null : widget.onAddPlant,
               );
             }

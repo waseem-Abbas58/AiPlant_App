@@ -15,6 +15,7 @@ class GardenPlantCard extends StatelessWidget {
     required this.imagePath,
     required this.name,
     required this.status,
+    this.scientificName = '',
     this.isAssetImage = true,
     this.heroTag,
     this.onTap,
@@ -25,23 +26,31 @@ class GardenPlantCard extends StatelessWidget {
   final String imagePath;
   final String name;
   final String status;
+  final String scientificName;
   final bool isAssetImage;
   final String? heroTag;
   final VoidCallback? onTap;
   final VoidCallback? onStatusTap;
   final VoidCallback? onMore;
 
+  bool get _needsWater {
+    final lower = status.toLowerCase();
+    return lower.contains('needs water') || lower.contains('due today');
+  }
+
   @override
   Widget build(BuildContext context) {
-    final needsWater = status.toLowerCase().contains('needs water');
     final statusColor =
-        needsWater ? const Color(0xFF1E88E5) : AppColors.primaryGreen;
+        _needsWater ? const Color(0xFF1E88E5) : AppColors.primaryGreen;
+    final statusIcon = _needsWater
+        ? Icons.water_drop_rounded
+        : Icons.eco_rounded;
 
     return CustomContainer(
       onTap: onTap,
       color: AppColors.white,
       borderRadius: AppRadius.large,
-      shadow: AppShadows.diffused,
+      shadow: AppShadows.soft,
       clipBehavior: Clip.antiAlias,
       padding: EdgeInsets.zero,
       child: Stack(
@@ -57,6 +66,7 @@ class GardenPlantCard extends StatelessWidget {
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
               ),
             ),
           ),
@@ -66,12 +76,12 @@ class GardenPlantCard extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
+                  Color(0x26000000),
+                  Colors.transparent,
                   Color(0x33000000),
-                  Colors.transparent,
-                  Colors.transparent,
-                  Color(0xCC000000),
+                  Color(0xB3000000),
                 ],
-                stops: [0, 0.22, 0.48, 1],
+                stops: [0, 0.38, 0.62, 1],
               ),
             ),
           ),
@@ -94,7 +104,7 @@ class GardenPlantCard extends StatelessWidget {
           Positioned(
             left: 12.w,
             right: 12.w,
-            bottom: 14.h,
+            bottom: 12.h,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -106,22 +116,46 @@ class GardenPlantCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 6.h),
+                if (scientificName.isNotEmpty) ...[
+                  SizedBox(height: 2.h),
+                  CustomText(
+                    scientificName,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.white.withValues(alpha: 0.82),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                SizedBox(height: 8.h),
                 CustomContainer(
                   onTap: onStatusTap,
-                  color: statusColor.withValues(alpha: 0.92),
+                  color: statusColor.withValues(alpha: 0.94),
                   borderRadius: AppRadius.circular,
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
-                    vertical: 4.h,
+                    vertical: 5.h,
                   ),
-                  child: CustomText(
-                    status,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.white,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        statusIcon,
+                        size: 12.sp,
+                        color: AppColors.white,
+                      ),
+                      SizedBox(width: 4.w),
+                      Flexible(
+                        child: CustomText(
+                          status,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.white,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

@@ -49,14 +49,14 @@ class PlantScanView extends GetView<PlantScanController> {
             ),
             const Positioned.fill(
               child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                child: DecoratedBox(     
+                  decoration: BoxDecoration(   
+                    gradient: LinearGradient(   
+                      begin: Alignment.topCenter,    
+                      end: Alignment.bottomCenter,    
                       colors: [
                         Color(0x66000000),
-                        Color(0x00000000),
+                        Color(0x00000000), 
                         Color(0x00000000),
                         Color(0x00000000),
                       ],
@@ -254,7 +254,7 @@ class PlantScanView extends GetView<PlantScanController> {
                               scrollDirection: Axis.horizontal,
                               itemCount: ScanCategory.all.length,
                               separatorBuilder: (_, __) =>
-                                  SizedBox(width: 22.w),
+                                  SizedBox(width: 14.w),
                               itemBuilder: (context, i) {
                                 return _ScanCategoryChip(
                                   item: ScanCategory.all[i],
@@ -369,7 +369,7 @@ class _ModePill extends StatelessWidget {
       onTap: onTap,
       color: selected ? AppColors.white : Colors.transparent,
       borderRadius: AppRadius.circular,
-      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
       child: CustomText(
         label,
         fontSize: 14,
@@ -457,17 +457,15 @@ class _ScanCategoryChip extends StatelessWidget {
   final bool active;
   final VoidCallback onTap;
 
-  static const _gold = Color(0xFFFFD54F);
-
   @override
   Widget build(BuildContext context) {
-    final color = active ? _gold : AppColors.white;
-    return CustomContainer(
+    final color = active ? AppColors.lightGreen : AppColors.white; 
+    return CustomContainer(  
       onTap: onTap,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.eco_rounded, color: color, size: 16.sp),
+          Icon(Icons.eco_rounded, color: color, size: 16.sp),    
           SizedBox(width: 6.w),
           CustomText(
             item.label,

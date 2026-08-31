@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helpers/navigation_helper.dart';
@@ -9,6 +10,22 @@ import '../model/search_model.dart';
 
 class SearchViewController extends GetxController {
   final query = ''.obs;
+  late final TextEditingController field;
+
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    final start = args is String ? args.trim() : '';
+    field = TextEditingController(text: start);
+    if (start.isNotEmpty) query.value = start;
+  }
+
+  @override
+  void onClose() {
+    field.dispose();
+    super.onClose();
+  }
 
   void onQuery(String value) => query.value = value;
 
@@ -54,9 +71,7 @@ class SearchViewController extends GetxController {
         SearchHit(
           title: article.title,
           subtitle: article.category,
-          onOpen: () => NavigationHelper.to(
-            () => SuggestionDetailView(article: article),
-          ),
+          onOpen: () => SuggestionDetailView.open(article),
         ),
     ];
     if (Get.isRegistered<MyGardenController>()) {

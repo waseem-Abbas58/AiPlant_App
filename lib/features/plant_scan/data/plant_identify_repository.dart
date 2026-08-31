@@ -1,6 +1,7 @@
 import '../../my_garden/data/plant_care_engine.dart';
 import '../../my_garden/model/my_garden_model.dart';
 import '../model/plant_identify_result.dart';
+import 'plant_scene_gate.dart';
 
 /// Swap [LocalPlantIdentifyRepository] for an API implementation later.
 /// Keep this interface so garden and scan stay unchanged.
@@ -34,7 +35,15 @@ class LocalPlantIdentifyRepository implements PlantIdentifyRepository {
     String imagePath, {
     String categoryId = 'plant',
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 1400));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    final plantLike = await PlantSceneGate.looksLikePlant(
+      imagePath,
+      categoryId: categoryId,
+    );
+    if (!plantLike) {
+      return PlantIdentifyResult.notAPlant(imagePath);
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 700));
     return _previewFor(categoryId, imagePath);
   }
 

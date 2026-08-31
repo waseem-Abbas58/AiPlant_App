@@ -17,9 +17,9 @@ class GardenEmptyState extends StatelessWidget {
     this.icon,
     this.illustration,
     this.onAction,
-    this.filledAction = false,
     this.secondaryLabel,
     this.onSecondary,
+    this.compact = false,
   });
 
   final String title;
@@ -28,27 +28,31 @@ class GardenEmptyState extends StatelessWidget {
   final IconData? icon;
   final Widget? illustration;
   final VoidCallback? onAction;
-  final bool filledAction;
   final String? secondaryLabel;
   final VoidCallback? onSecondary;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.large.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? AppSpacing.small.w : AppSpacing.large.w,
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           illustration ??
               Icon(
                 icon ?? Icons.local_florist_outlined,
-                size: 56.sp,
+                size: compact ? 44.sp : 56.sp,
                 color: AppColors.mutedText,
               ),
-          SizedBox(height: AppSpacing.large.h),
+          SizedBox(
+            height: compact ? AppSpacing.medium.h : AppSpacing.large.h,
+          ),
           CustomText(
             title,
-            fontSize: 24,
+            fontSize: compact ? 20 : 24,
             fontWeight: FontWeight.w700,
             color: AppColors.primaryText,
             textAlign: TextAlign.center,
@@ -67,12 +71,11 @@ class GardenEmptyState extends StatelessWidget {
             SizedBox(height: AppSpacing.large.h),
             CustomContainer(
               onTap: onAction,
-              color: filledAction ? AppColors.primaryGreen : AppColors.white,
-              borderRadius: AppRadius.circular,
-              shadow: filledAction ? AppShadows.soft : null,
-              border: filledAction
-                  ? null
-                  : Border.all(color: AppColors.primaryGreen),
+              borderRadius: AppRadius.large,
+              border: Border.all(
+                color: AppColors.lightGreen,
+                width: 1,
+              ),
               padding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.extraLarge.w,
                 vertical: AppSpacing.small.h + 6.h,
@@ -80,8 +83,8 @@ class GardenEmptyState extends StatelessWidget {
               child: CustomText(
                 actionLabel,
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: filledAction ? AppColors.white : AppColors.primaryGreen,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryGreen,
               ),
             ),
           ],
@@ -128,6 +131,27 @@ class GardenTasksEmptyArt extends StatelessWidget {
   }
 }
 
+class GardenSnapEmptyArt extends StatelessWidget {
+  const GardenSnapEmptyArt({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomContainer(
+      width: 88,
+      height: 88,
+      color: AppColors.white,
+      borderRadius: AppRadius.circular,
+      shadow: AppShadows.diffused,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.search_rounded,
+        size: 36.sp,
+        color: AppColors.primaryGreen.withValues(alpha: 0.7),
+      ),
+    );
+  }
+}
+
 class GardenEmptyArt extends StatelessWidget {
   const GardenEmptyArt({super.key});
 
@@ -167,6 +191,26 @@ class GardenEmptyArt extends StatelessWidget {
         child: ClipOval(
           child: Image.asset(path, fit: BoxFit.cover),
         ),
+      ),
+    );
+  }
+}
+
+class GardenEmptyCardsArt extends StatelessWidget {
+  const GardenEmptyCardsArt({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomContainer(
+      width: 96,
+      height: 96,
+      color: AppColors.sageBackground,
+      borderRadius: AppRadius.circular,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.local_florist_outlined,
+        size: 40.sp,
+        color: AppColors.primaryGreen,
       ),
     );
   }

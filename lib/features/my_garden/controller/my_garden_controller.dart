@@ -12,9 +12,7 @@ import '../../main_navigation/controller/main_navigation_controller.dart';
 import '../data/plant_care_engine.dart';
 import '../model/my_garden_model.dart';
 import '../view/add_plant_camera_view.dart';
-import '../view/garden_care_view.dart';
 import '../view/garden_plant_detail_view.dart';
-import '../view/garden_snap_history_view.dart';
 import '../view/light_meter_view.dart';
 import '../view/water_meter_view.dart';
 import '../view/plant_photo_review_view.dart';
@@ -22,6 +20,7 @@ import '../../plant_scan/controller/plant_scan_controller.dart';
 import '../../plant_scan/data/plant_identify_repository.dart';
 import '../../plant_scan/model/plant_identify_result.dart';
 import '../../chatbot/data/botanist_navigator.dart';
+import '../../plant_scan/view/identify_failed_view.dart';
 import '../../plant_scan/view/identify_processing_view.dart';
 import '../../plant_scan/view/identify_result_view.dart';
 import '../widgets/change_group_sheet.dart';
@@ -31,6 +30,7 @@ import '../widgets/new_group_sheet.dart';
 import '../widgets/plant_crop_sheet.dart';
 import '../widgets/plant_editor_sheet.dart';
 import '../widgets/plant_more_sheet.dart';
+import '../widgets/add_plant_sheet.dart';
 
 class MyGardenController extends GetxController {
   final selectedTaskDate = _dateOnly(DateTime.now()).obs;
@@ -43,6 +43,7 @@ class MyGardenController extends GetxController {
   final selectedGroupId = RxnString();
   final careStreak = 0.obs;
   final lastStreakDay = Rxn<DateTime>();
+  final homeTab = 0.obs;
 
   static DateTime _dateOnly(DateTime date) =>
       DateTime(date.year, date.month, date.day);
@@ -52,7 +53,7 @@ class MyGardenController extends GetxController {
 
   DateTime get today => _dateOnly(DateTime.now());
 
-  bool get showGroupChips => plants.length >= 2;
+  bool get showGroupChips => true;
 
   List<GardenPlant> get visiblePlants {
     final selected = selectedGroupId.value;
@@ -62,9 +63,8 @@ class MyGardenController extends GetxController {
 
   String careLabelFor(GardenPlant plant) {
     final water = PlantCareEngine.waterStatus(plant);
-    if (water == PlantWaterStatus.due || water == PlantWaterStatus.dry) {
-      return 'Needs water';
-    }
+    if (water == PlantWaterStatus.due) return 'Due today';
+    if (water == PlantWaterStatus.dry) return 'Needs water';
     for (final task in _tasksOn(today)) {
       if (task.plantId != plant.id || task.done || task.kind == 'water') {
         continue;
@@ -79,6 +79,11 @@ class MyGardenController extends GetxController {
     }
     if (water == PlantWaterStatus.fresh) return 'Watered';
     return 'Healthy';
+  }
+
+  bool canQuickWater(GardenPlant plant) {
+    final water = PlantCareEngine.waterStatus(plant);
+    return water == PlantWaterStatus.due || water == PlantWaterStatus.dry;
   }
 
   void selectGroup(String? groupId) {
@@ -309,11 +314,11 @@ class MyGardenController extends GetxController {
   }
 
   String? coverPathFor(GardenGroup group) =>
-      group.coverImagePath ?? firstPlantFor(group.id)?.imagePath;
+      group.coverImagePath ?? lastPlantFor(group.id)?.imagePath;
 
   bool coverIsAssetFor(GardenGroup group) {
     if (group.coverImagePath != null) return group.coverIsAsset;
-    return firstPlantFor(group.id)?.isAssetImage ?? true;
+    return lastPlantFor(group.id)?.isAssetImage ?? true;
   }
 
   void _refreshStreak() {
@@ -549,7 +554,12 @@ class MyGardenController extends GetxController {
     BuildContext context, {
     String groupId = GardenGroup.generalId,
   }) {
-    pickPlantImage(ImageSource.camera, groupId: groupId);
+    showAddPlantSheet(
+      context,
+      onTakePhoto: openIdentify,
+      onChooseGallery: () =>
+          pickPlantImage(ImageSource.gallery, groupId: groupId),
+    );
   }
 
   Future<void> pickPlantImage(
@@ -591,14 +601,35 @@ class MyGardenController extends GetxController {
     final result = await NavigationHelper.to<PlantIdentifyResult>(
       () => IdentifyProcessingView(imagePath: path),
     );
-    if (result == null || !result.isIdentified) return;
+    if (result == null) return;
+    if (!result.isIdentified) {
+      await NavigationHelper.to(
+        () => IdentifyFailedView(
+          reason: result.failReason,
+          categoryId: 'plant',
+        ),
+      );
+      return;
+    }
     final plantId = await NavigationHelper.to<String>(
       () => IdentifyResultView(
         result: result.copyWith(imagePath: path),
         groupId: groupId,
       ),
     );
-    if (plantId != null) openWaterMeter(plantId: plantId);
+    if (plantId == null || plantId.isEmpty) return;
+    if (Get.isRegistered<MainNavigationController>()) {
+      Get.find<MainNavigationController>().onTabTapped(
+        MainNavigationController.gardenIndex,
+      );
+    }
+    final plant = plantById(plantId);
+    CustomSnackbar.success(
+      title: 'Added to garden',
+      message: plant == null
+          ? 'Saved'
+          : '${plant.name} added to ${_groupTitle(groupId)}',
+    );
   }
 
   Future<String?> cropPlantImage(String path) async {
@@ -627,6 +658,7 @@ class MyGardenController extends GetxController {
     String scientificName = '',
     String groupId = GardenGroup.generalId,
     GardenCareSchedule? care,
+    bool notify = true,
   }) {
     final resolvedName =
         (name != null && name.trim().isNotEmpty) ? name.trim() : _fallbackPlantName();
@@ -646,10 +678,12 @@ class MyGardenController extends GetxController {
           item.name.toLowerCase() == resolvedName.toLowerCase(),
     );
     _undoTodayStreak();
-    CustomSnackbar.success(
-      title: 'Added to garden',
-      message: '$resolvedName added to ${_groupTitle(groupId)}',
-    );
+    if (notify) {
+      CustomSnackbar.success(
+        title: 'Added to garden',
+        message: '$resolvedName added to ${_groupTitle(groupId)}',
+      );
+    }
     return plant;
   }
 
@@ -849,11 +883,15 @@ class MyGardenController extends GetxController {
   }
 
   void openCare() {
-    NavigationHelper.to(() => const GardenCareView());
+    homeTab.value = 1;
   }
 
   void openSnapHistory() {
-    NavigationHelper.to(() => const GardenSnapHistoryView());
+    homeTab.value = 2;
+  }
+
+  void selectHomeTab(int index) {
+    homeTab.value = index;
   }
 
   void openNewGroupSheet(BuildContext context) {
@@ -880,6 +918,14 @@ class MyGardenController extends GetxController {
       if (plant.groupId == groupId) return plant;
     }
     return null;
+  }
+
+  GardenPlant? lastPlantFor(String groupId) {
+    GardenPlant? found;
+    for (final plant in plants) {
+      if (plant.groupId == groupId) found = plant;
+    }
+    return found;
   }
 
   void openPlantDetail(GardenPlant plant) {
@@ -1030,7 +1076,8 @@ class MyGardenController extends GetxController {
       NavigationHelper.back();
     }
     if (!Get.isRegistered<MainNavigationController>()) return;
-    Get.find<MainNavigationController>().onTabTapped(2);
+    Get.find<MainNavigationController>()
+        .onTabTapped(MainNavigationController.scanIndex);
   }
 
   void deleteSnap(GardenSnap snap) {

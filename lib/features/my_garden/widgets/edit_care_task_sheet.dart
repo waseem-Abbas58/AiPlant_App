@@ -173,26 +173,35 @@ class _EditCareTaskSheetState extends State<_EditCareTaskSheet> {
             color: AppColors.secondaryText,
           ),
           SizedBox(height: AppSpacing.medium.h),
-          _TaskRow(
-            icon: Icons.repeat_rounded,
-            title: 'Repeat',
-            value: _repeat,
-            onTap: () => _pick(_repeats, _repeat, (value) {
-              setState(() => _repeat = value);
-            }),
-          ),
-          Divider(color: AppColors.divider, height: 1.h),
-          _TaskRow(
-            icon: Icons.schedule_outlined,
-            title: 'Time',
-            value: _time,
-            onTap: () => _pick(_times, _time, (value) {
-              setState(() => _time = value);
-            }),
+          CustomContainer(
+            color: AppColors.white,
+            borderRadius: AppRadius.large,
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.medium.w),
+            child: Column(
+              children: [
+                _TaskRow(
+                  icon: Icons.repeat_rounded,
+                  title: 'Repeat',
+                  value: _repeat,
+                  onTap: () => _pick(_repeats, _repeat, (value) {
+                    setState(() => _repeat = value);
+                  }),
+                ),
+                Divider(color: AppColors.divider, height: 1.h),
+                _TaskRow(
+                  icon: Icons.schedule_outlined,
+                  title: 'Time',
+                  value: _time,
+                  onTap: () => _pick(_times, _time, (value) {
+                    setState(() => _time = value);
+                  }),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: AppSpacing.medium.h),
           CustomContainer(
-            color: AppColors.sageBackground,
+            color: AppColors.white,
             borderRadius: AppRadius.large,
             padding: EdgeInsets.all(AppSpacing.medium.w),
             child: Row(
@@ -226,28 +235,30 @@ class _EditCareTaskSheetState extends State<_EditCareTaskSheet> {
           ),
           SizedBox(height: AppSpacing.large.h),
           CustomButton(
+            text: 'Save',
+            backgroundColor: AppColors.primaryGreen,
+            textColor: AppColors.white,
+            borderRadius: AppRadius.large,
+            onPressed: () => Navigator.of(context).pop(
+              CareTaskDraft(
+                repeatLabel: _repeat,
+                time: _time,
+                autoReminders: _auto,
+              ),
+            ),
+          ),
+          SizedBox(height: AppSpacing.small.h),
+          CustomButton(
             text: 'Delete Task',
             backgroundColor: AppColors.error,
             textColor: AppColors.white,
+            borderRadius: AppRadius.large,
             onPressed: () => Navigator.of(context).pop(
               CareTaskDraft(
                 repeatLabel: _repeat,
                 time: _time,
                 autoReminders: _auto,
                 deleted: true,
-              ),
-            ),
-          ),
-          SizedBox(height: AppSpacing.small.h),
-          CustomButton(
-            text: 'Save',
-            backgroundColor: AppColors.primaryGreen,
-            textColor: AppColors.white,
-            onPressed: () => Navigator.of(context).pop(
-              CareTaskDraft(
-                repeatLabel: _repeat,
-                time: _time,
-                autoReminders: _auto,
               ),
             ),
           ),

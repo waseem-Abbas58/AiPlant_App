@@ -141,6 +141,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView>
                         hintText: 'New Password',
                         textInputAction: TextInputAction.next,
                         isDense: true,
+                        height: AuthFormStyle.fieldHeight,
                         fillColor: AuthFormStyle.fill,
                         enabledBorderColor: _ResetPasswordSurfaces.fieldBorder,
                         enabledBorderWidth: _ResetPasswordSurfaces.fieldBorderWidth,
@@ -170,6 +171,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView>
                         hintText: 'Confirm New Password',
                         textInputAction: TextInputAction.done,
                         isDense: true,
+                        height: AuthFormStyle.fieldHeight,
                         fillColor: AuthFormStyle.fill,
                         enabledBorderColor: _ResetPasswordSurfaces.fieldBorder,
                         enabledBorderWidth: _ResetPasswordSurfaces.fieldBorderWidth,
@@ -252,8 +254,7 @@ class _ResetPasswordFieldSurface extends StatelessWidget {
 class _ResetPasswordSurfaces {
   _ResetPasswordSurfaces._();
 
-  static final Color fieldBorder =
-      AppColors.border.withValues(alpha: 0.52);
+  static final Color fieldBorder = AuthFormStyle.enabledBorder;
 
   static const double fieldBorderWidth = AppBorders.widthRegular;
 

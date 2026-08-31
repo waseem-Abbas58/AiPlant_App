@@ -50,6 +50,7 @@ class SearchView extends GetView<SearchViewController> {
                     ),
                     Expanded(
                       child: CustomSearchField(
+                        controller: controller.field,
                         hintText: 'Search plants, tools, tips',
                         fillColor: AppColors.white,
                         borderRadius: AppRadius.large,

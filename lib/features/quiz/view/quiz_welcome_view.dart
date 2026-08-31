@@ -8,7 +8,10 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/constants/app_images.dart';
 import '../../../core/helpers/navigation_helper.dart';
 import '../../../shared/widgets/custom_button.dart';
+import '../../../shared/widgets/custom_container.dart';
 import '../../../shared/widgets/custom_text.dart';
+import '../model/weekly_quiz.dart';
+import 'quiz_play_view.dart';
 
 class QuizWelcomeView extends StatelessWidget {
   const QuizWelcomeView({super.key});
@@ -16,6 +19,7 @@ class QuizWelcomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imagePath = (Get.arguments as String?) ?? AppImages.weeklyQuiz;
+    final count = WeeklyQuiz.questions.length;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -39,7 +43,47 @@ class QuizWelcomeView extends StatelessWidget {
           Image.asset(
             imagePath,
             fit: BoxFit.cover,
-            alignment: Alignment.bottomCenter,
+            alignment: const Alignment(-0.12, 0.42),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            width: 96.w,
+            height: 220.h,
+            child: const IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Color(0x00F4F6F3),
+                      AppColors.sageBackground,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 160.h,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.sageBackground.withValues(alpha: 0),
+                      AppColors.sageBackground,
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
           SafeArea(
             child: Padding(
@@ -52,28 +96,43 @@ class QuizWelcomeView extends StatelessWidget {
               child: Column(
                 children: [
                   CustomText(
-                    'Welcome to the',
-                    fontSize: 14,
-                    color: AppColors.secondaryText,
-                  ), 
-                  CustomText(
-                    'Week 34 Quiz',
+                    '${WeeklyQuiz.weekLabel} Quiz',
                     fontSize: 26,
-                    fontWeight: FontWeight.w700, 
+                    fontWeight: FontWeight.w700,
                     color: AppColors.primaryText,
                   ),
+                  SizedBox(height: AppSpacing.small.h),
                   CustomText(
-                    'This quiz consists of 3 questions.',
-                    fontSize: 14,
+                    WeeklyQuiz.prompt,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
                     color: AppColors.secondaryText,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: AppSpacing.medium.h),
+                  CustomContainer(
+                    color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.circular,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.medium.w,
+                      vertical: AppSpacing.extraSmall.h + 2,
+                    ),
+                    child: CustomText(
+                      '$count questions',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryGreen,
+                    ),
                   ),
                   const Spacer(),
                   CustomButton(
                     text: 'Start',
-                    onPressed: () {},
+                    onPressed: () => NavigationHelper.to(
+                      () => const QuizPlayView(),
+                    ),
                     backgroundColor: AppColors.primaryGreen,
                     textColor: AppColors.white,
-                    borderRadius: AppRadius.medium, 
+                    borderRadius: AppRadius.medium,
                   ),
                 ],
               ),

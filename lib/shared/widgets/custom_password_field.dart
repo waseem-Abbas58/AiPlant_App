@@ -32,6 +32,7 @@ class CustomPasswordField extends StatefulWidget {
     this.autovalidateMode,
     this.isDense = false,
     this.autofillHints,
+    this.height,
   });
 
   final TextEditingController? controller;
@@ -57,6 +58,7 @@ class CustomPasswordField extends StatefulWidget {
   final AutovalidateMode? autovalidateMode;
   final bool isDense;
   final Iterable<String>? autofillHints;
+  final double? height;
 
   @override
   State<CustomPasswordField> createState() => _CustomPasswordFieldState();
@@ -103,14 +105,15 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
       autovalidateMode: widget.autovalidateMode,
       isDense: widget.isDense,
       autofillHints: widget.autofillHints,
+      height: widget.height,
       suffixIcon: IconButton(
         onPressed: widget.enabled ? _toggleVisibility : null,
         tooltip: _obscureText ? 'Show password' : 'Hide password',
         padding: EdgeInsets.zero,
         visualDensity: VisualDensity.compact,
         constraints: BoxConstraints(
-          minWidth: AppSizes.textFieldHeight.w,
-          minHeight: AppSizes.textFieldHeight.h,
+          minWidth: AppSizes.iconLg.w,
+          minHeight: AppSizes.iconLg.h,
         ),
         icon: AnimatedSwitcher(
           duration: AppDurations.normal,

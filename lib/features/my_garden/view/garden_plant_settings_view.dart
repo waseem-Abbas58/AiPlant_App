@@ -86,64 +86,66 @@ class GardenPlantSettingsView extends StatelessWidget {
                       ),
                       SizedBox(height: AppSpacing.large.h),
                       const _SectionTitle('Care Schedule'),
-                      _CareTile(
-                        icon: Icons.water_drop_outlined,
-                        title: 'Water',
-                        subtitle: 'Every ${garden.waterIntervalFor(current)} days',
-                        onTap: () => garden.openCareTaskEditor(
-                          context,
-                          current,
-                          GardenCareKind.water,
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.small.h),
-                      _CareTile(
-                        icon: Icons.waves_outlined,
-                        title: 'Mist',
-                        subtitle: 'Every ${current.care.mistDays} days',
-                        onTap: () => garden.openCareTaskEditor(
-                          context,
-                          current,
-                          GardenCareKind.mist,
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.small.h),
-                      _CareTile(
-                        icon: Icons.science_outlined,
-                        title: 'Fertilizer',
-                        subtitle:
-                            'Every ${current.care.fertilizerMonths} months',
-                        onTap: () => garden.openCareTaskEditor(
-                          context,
-                          current,
-                          GardenCareKind.fertilizer,
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.small.h),
-                      _CareTile(
-                        icon: Icons.rotate_right_outlined,
-                        title: 'Rotate',
-                        subtitle: 'Every ${current.care.rotateMonths} month',
-                        onTap: () => garden.openCareTaskEditor(
-                          context,
-                          current,
-                          GardenCareKind.rotate,
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.small.h),
-                      _CareTile(
-                        icon: Icons.content_cut_rounded,
-                        title: 'Cut',
-                        subtitle: 'Every ${current.care.cutMonths} months',
-                        onTap: () => garden.openCareTaskEditor(
-                          context,
-                          current,
-                          GardenCareKind.cut,
-                        ),
+                      _GroupedCard(
+                        children: [
+                          _CareTile(
+                            icon: Icons.water_drop_outlined,
+                            title: 'Water',
+                            subtitle:
+                                'Every ${garden.waterIntervalFor(current)} days',
+                            onTap: () => garden.openCareTaskEditor(
+                              context,
+                              current,
+                              GardenCareKind.water,
+                            ),
+                          ),
+                          _CareTile(
+                            icon: Icons.waves_outlined,
+                            title: 'Mist',
+                            subtitle: 'Every ${current.care.mistDays} days',
+                            onTap: () => garden.openCareTaskEditor(
+                              context,
+                              current,
+                              GardenCareKind.mist,
+                            ),
+                          ),
+                          _CareTile(
+                            icon: Icons.science_outlined,
+                            title: 'Fertilizer',
+                            subtitle:
+                                'Every ${current.care.fertilizerMonths} months',
+                            onTap: () => garden.openCareTaskEditor(
+                              context,
+                              current,
+                              GardenCareKind.fertilizer,
+                            ),
+                          ),
+                          _CareTile(
+                            icon: Icons.rotate_right_outlined,
+                            title: 'Rotate',
+                            subtitle:
+                                'Every ${current.care.rotateMonths} month',
+                            onTap: () => garden.openCareTaskEditor(
+                              context,
+                              current,
+                              GardenCareKind.rotate,
+                            ),
+                          ),
+                          _CareTile(
+                            icon: Icons.content_cut_rounded,
+                            title: 'Cut',
+                            subtitle: 'Every ${current.care.cutMonths} months',
+                            onTap: () => garden.openCareTaskEditor(
+                              context,
+                              current,
+                              GardenCareKind.cut,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: AppSpacing.large.h),
                       const _SectionTitle('Pot size'),
-                      _ChoiceRow(
+                      _ChoiceCard(
                         options: GardenCareSchedule.potSizes,
                         selected: current.care.potSize,
                         onSelect: (value) => garden.updateCare(
@@ -151,9 +153,9 @@ class GardenPlantSettingsView extends StatelessWidget {
                           current.care.copyWith(potSize: value),
                         ),
                       ),
-                      SizedBox(height: AppSpacing.large.h),
+                      SizedBox(height: AppSpacing.medium.h),
                       const _SectionTitle('Light'),
-                      _ChoiceRow(
+                      _ChoiceCard(
                         options: GardenCareSchedule.lightLevels,
                         selected: current.care.lightLevel,
                         onSelect: (value) => garden.updateCare(
@@ -161,9 +163,9 @@ class GardenPlantSettingsView extends StatelessWidget {
                           current.care.copyWith(lightLevel: value),
                         ),
                       ),
-                      SizedBox(height: AppSpacing.large.h),
+                      SizedBox(height: AppSpacing.medium.h),
                       const _SectionTitle('Water amount'),
-                      _ChoiceRow(
+                      _ChoiceCard(
                         options: GardenCareSchedule.waterAmounts,
                         selected: current.care.waterAmount,
                         onSelect: (value) => garden.updateCare(
@@ -171,9 +173,9 @@ class GardenPlantSettingsView extends StatelessWidget {
                           current.care.copyWith(waterAmount: value),
                         ),
                       ),
-                      SizedBox(height: AppSpacing.large.h),
+                      SizedBox(height: AppSpacing.medium.h),
                       const _SectionTitle('Location'),
-                      _ChoiceRow(
+                      _ChoiceCard(
                         options: GardenCareSchedule.locations,
                         selected: current.care.location,
                         onSelect: (value) => garden.updateCare(
@@ -218,19 +220,11 @@ class GardenPlantSettingsView extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: AppSpacing.extraLarge.h),
-                      const Center(
-                        child: CustomText(
-                          'Retire Plant',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryText,
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.small.h),
                       CustomButton(
-                        text: 'Remove this Plant',
+                        text: 'Remove this plant',
                         backgroundColor: AppColors.error,
                         textColor: AppColors.white,
+                        borderRadius: AppRadius.large,
                         onPressed: () async {
                           if (await garden.confirmDeletePlant(current)) {
                             NavigationHelper.back();
@@ -328,8 +322,38 @@ class _GroupCard extends StatelessWidget {
   }
 }
 
-class _ChoiceRow extends StatelessWidget {
-  const _ChoiceRow({
+class _GroupedCard extends StatelessWidget {
+  const _GroupedCard({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomContainer(
+      color: AppColors.white,
+      borderRadius: AppRadius.large,
+      padding: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            children[i],
+            if (i < children.length - 1)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.divider,
+                indent: 68.w,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ChoiceCard extends StatelessWidget {
+  const _ChoiceCard({
     required this.options,
     required this.selected,
     required this.onSelect,
@@ -341,16 +365,20 @@ class _ChoiceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.small.w,
-      runSpacing: AppSpacing.small.h,
+    return Row(
       children: [
-        for (final option in options)
-          GardenFilterChip(
-            label: option,
-            selected: option == selected,
-            onTap: () => onSelect(option),
+        for (var i = 0; i < options.length; i++) ...[
+          if (i > 0) SizedBox(width: AppSpacing.small.w),
+          Expanded(
+            child: GardenFilterChip(
+              label: options[i],
+              selected: options[i] == selected,
+              expand: true,
+              borderRadius: AppRadius.medium,
+              onTap: () => onSelect(options[i]),
+            ),
           ),
+        ],
       ],
     );
   }
@@ -373,8 +401,7 @@ class _CareTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomContainer(
       onTap: onTap,
-      color: AppColors.white,
-      borderRadius: AppRadius.large,
+      color: Colors.transparent,
       padding: EdgeInsets.all(AppSpacing.medium.w),
       child: Row(
         children: [

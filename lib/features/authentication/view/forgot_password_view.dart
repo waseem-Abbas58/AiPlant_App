@@ -128,6 +128,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>
                       autocorrect: false,
                       enableSuggestions: false,
                       isDense: true,
+                      height: AuthFormStyle.fieldHeight,
                       fillColor: AuthFormStyle.fill,
                       enabledBorderColor: AuthFormStyle.enabledBorder,
                       enabledBorderWidth: AuthFormStyle.enabledBorderWidth,

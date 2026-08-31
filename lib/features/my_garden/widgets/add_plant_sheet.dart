@@ -45,7 +45,7 @@ Future<void> showAddPlantSheet(
             _AddPlantRow(
               icon: Icons.photo_camera_outlined,
               title: 'Take a Photo',
-              subtitle: 'Snap your plant for the garden',
+              subtitle: 'Identify trees, plants etc.',
               onTap: () {
                 Navigator.of(context).pop();
                 onTakePhoto?.call();
@@ -55,7 +55,7 @@ Future<void> showAddPlantSheet(
             _AddPlantRow(
               icon: Icons.photo_outlined,
               title: 'Choose from Gallery',
-              subtitle: 'Pick a photo from your library',
+              subtitle: 'Upload plants picture',
               onTap: () {
                 Navigator.of(context).pop();
                 onChooseGallery?.call();

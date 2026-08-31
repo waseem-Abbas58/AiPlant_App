@@ -2,6 +2,8 @@ import '../../my_garden/model/my_garden_model.dart';
 
 enum IdentifiedKind { plant, tree, mushroom, weed, disease, unknown }
 
+enum IdentifyFailReason { none, notPlant, noMatch }
+
 class PlantIdentifyMatch {
   const PlantIdentifyMatch({
     required this.commonName,
@@ -64,6 +66,7 @@ class PlantIdentifyResult {
     this.care,
     this.sampleImageAsset,
     this.isIdentified = true,
+    this.failReason = IdentifyFailReason.none,
     this.isLocalPreview = false,
   });
 
@@ -79,9 +82,20 @@ class PlantIdentifyResult {
   final GardenCareSchedule? care;
   final String? sampleImageAsset;
   final bool isIdentified;
+  final IdentifyFailReason failReason;
 
   /// True while the app uses the local stub. Backend should return false.
   final bool isLocalPreview;
+
+  factory PlantIdentifyResult.notAPlant(String imagePath) {
+    return PlantIdentifyResult(
+      imagePath: imagePath,
+      commonName: '',
+      isIdentified: false,
+      failReason: IdentifyFailReason.notPlant,
+      isLocalPreview: true,
+    );
+  }
 
   String get kindLabel => switch (kind) {
         IdentifiedKind.plant => 'Plant',
@@ -130,6 +144,7 @@ class PlantIdentifyResult {
     GardenCareSchedule? care,
     String? sampleImageAsset,
     bool? isIdentified,
+    IdentifyFailReason? failReason,
     bool? isLocalPreview,
   }) {
     return PlantIdentifyResult(
@@ -145,6 +160,7 @@ class PlantIdentifyResult {
       care: care ?? this.care,
       sampleImageAsset: sampleImageAsset ?? this.sampleImageAsset,
       isIdentified: isIdentified ?? this.isIdentified,
+      failReason: failReason ?? this.failReason,
       isLocalPreview: isLocalPreview ?? this.isLocalPreview,
     );
   }

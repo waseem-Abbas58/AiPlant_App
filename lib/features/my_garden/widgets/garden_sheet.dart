@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../app/theme/app_colors.dart';
-import '../../../app/theme/app_radius.dart';
 
 Future<T?> showGardenSheet<T>({
   required BuildContext context,
@@ -23,7 +22,7 @@ Future<T?> showGardenSheet<T>({
     ),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(AppRadius.extraLarge.r),
+        top: Radius.circular(32.r),
       ),
     ),
     builder: builder,

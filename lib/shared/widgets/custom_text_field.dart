@@ -117,14 +117,17 @@ class CustomTextField extends StatelessWidget {
     );
 
     final fieldHeight = height?.h;
-    final iconMinHeight = fieldHeight ?? AppSizes.textFieldHeight.h;
-    final effectivePadding = contentPadding ??
-        EdgeInsets.symmetric(
-          horizontal: AppSpacing.medium.w,
-          vertical: fieldHeight != null
-              ? 0
-              : AppSpacing.medium.h + AppSpacing.extraSmall.h,
-        );
+    final locked = fieldHeight != null;
+    final horizontalPadding = contentPadding is EdgeInsets
+        ? (contentPadding! as EdgeInsets).left
+        : AppSpacing.medium.w;
+    final effectivePadding = locked
+        ? EdgeInsets.symmetric(horizontal: horizontalPadding)
+        : contentPadding ??
+            EdgeInsets.symmetric(
+              horizontal: AppSpacing.medium.w,
+              vertical: AppSpacing.medium.h + AppSpacing.extraSmall.h,
+            );
 
     final field = TextFormField(
       controller: controller,
@@ -159,21 +162,26 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
-        isDense: isDense || fieldHeight != null,
+        isDense: isDense || locked,
         filled: true,
         fillColor: enabled
             ? defaultFill
             : (isDark ? AppColors.darkBackground : AppColors.background),
         prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon, 
+        suffixIcon: suffixIcon,
+        constraints: locked
+            ? BoxConstraints(minHeight: fieldHeight)
+            : null,
         prefixIconConstraints: BoxConstraints(
           minWidth: prefixIcon == null ? 0 : 40.w,
-          minHeight: 0,
+          minHeight: prefixIcon == null ? 0 : (locked ? fieldHeight : 0),
           maxHeight: fieldHeight ?? double.infinity,
         ),
         suffixIconConstraints: BoxConstraints(
-          minWidth: AppSizes.iconLg.w,
-          minHeight: iconMinHeight,
+          minWidth: suffixIcon == null ? 0 : AppSizes.iconLg.w,
+          minHeight: suffixIcon == null
+              ? 0
+              : (locked ? fieldHeight : AppSizes.textFieldHeight.h),
           maxHeight: fieldHeight ?? double.infinity,
         ),
         contentPadding: effectivePadding,
@@ -204,13 +212,6 @@ class CustomTextField extends StatelessWidget {
       ),
     );
 
-    if (fieldHeight == null) {
-      return field;
-    }
-
-    return SizedBox(
-      height: fieldHeight,
-      child: field,
-    );
+    return field;
   }
 }

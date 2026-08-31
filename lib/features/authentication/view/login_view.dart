@@ -141,6 +141,7 @@ class _LoginViewState extends State<LoginView>
                         autocorrect: false,
                         enableSuggestions: false,
                         isDense: true,
+                        height: AuthFormStyle.fieldHeight,
                         fillColor: _LoginFormSurfaces.fieldFill,
                         enabledBorderColor: _LoginFormSurfaces.fieldBorder,
                         enabledBorderWidth: _LoginFormSurfaces.fieldBorderWidth,
@@ -168,6 +169,7 @@ class _LoginViewState extends State<LoginView>
                         hintText: 'Password',
                         textInputAction: TextInputAction.done,
                         isDense: true,
+                        height: AuthFormStyle.fieldHeight,
                         fillColor: _LoginFormSurfaces.fieldFill,
                         enabledBorderColor: _LoginFormSurfaces.fieldBorder,
                         enabledBorderWidth: _LoginFormSurfaces.fieldBorderWidth,
@@ -225,11 +227,6 @@ class _LoginViewState extends State<LoginView>
                         text: 'Login',
                         enabled: controller.canSubmit,
                         onPressed: _submitLogin,
-                        shadow: _LoginFormSurfaces.primaryButtonShadow,
-                        disabledBackgroundColor:
-                            _LoginFormSurfaces.disabledButtonFill,
-                        disabledTextColor:
-                            _LoginFormSurfaces.disabledButtonText,
                       ),
                     ),
                   ),
@@ -332,8 +329,7 @@ class _LoginFormSurfaces {
 
   static final Color fieldFill = AuthFormStyle.fill;
 
-  static final Color fieldBorder =
-      AppColors.border.withValues(alpha: 0.52);
+  static final Color fieldBorder = AuthFormStyle.enabledBorder;
 
   static const double fieldBorderWidth = AppBorders.widthRegular;
 
@@ -342,14 +338,6 @@ class _LoginFormSurfaces {
       color: AppColors.black.withValues(alpha: 0.04),
       blurRadius: 8,
       offset: const Offset(0, 1),
-    ),
-  ];
-
-  static final List<BoxShadow> primaryButtonShadow = [
-    BoxShadow(
-      color: AppColors.primaryGreen.withValues(alpha: 0.18),
-      blurRadius: 14,
-      offset: const Offset(0, 5),
     ),
   ];
 
@@ -368,13 +356,6 @@ class _LoginFormSurfaces {
   static final Color divider = AppColors.border.withValues(alpha: 0.58);
 
   static const double dividerThickness = AppBorders.widthRegular;
-
-  static final Color disabledButtonFill = Color.alphaBlend(
-    AppColors.primaryGreen.withValues(alpha: 0.08),
-    AppColors.divider,
-  );
-
-  static final Color disabledButtonText = AppColors.secondaryText;
 }
 
 class _LoginPremiumBackground extends StatelessWidget {

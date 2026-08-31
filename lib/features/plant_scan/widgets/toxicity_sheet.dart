@@ -29,7 +29,7 @@ class ToxicitySheet extends StatelessWidget {
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppRadius.extraLarge.r),
+          top: Radius.circular(32.r),
         ),
       ),
       builder: (_) => ToxicitySheet(

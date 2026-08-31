@@ -9,6 +9,7 @@ import '../../chatbot/data/botanist_navigator.dart';
 import '../../chatbot/view/chatbot_view.dart';
 import '../../chatbot/widgets/ask_ai_fab.dart';
 import '../../home/view/home_view.dart';
+import '../../my_garden/controller/my_garden_controller.dart';
 import '../../my_garden/view/my_garden_view.dart';
 import '../../plant_scan/view/plant_scan_view.dart';
 import '../../profile/view/profile_view.dart';
@@ -59,6 +60,12 @@ class MainNavigationView extends GetView<MainNavigationController> {
       final index = controller.selectedIndex.value;
       final hideNav = index == MainNavigationController.chatIndex ||
           index == MainNavigationController.scanIndex;
+      final gardenEmpty = Get.isRegistered<MyGardenController>() &&
+          Get.find<MyGardenController>().plants.isEmpty;
+      final showAskAi = !hideNav &&
+          (index == MainNavigationController.homeIndex ||
+              (index == MainNavigationController.gardenIndex &&
+                  !gardenEmpty));
 
       return PopScope(
         canPop: !hideNav,
@@ -110,16 +117,10 @@ class MainNavigationView extends GetView<MainNavigationController> {
                 right: 16.w,
                 bottom: MediaQuery.paddingOf(context).bottom + 56.h + 8.h,
                 child: AnimatedOpacity(
-                  opacity: !hideNav &&
-                          (index == MainNavigationController.homeIndex ||
-                              index == MainNavigationController.gardenIndex)
-                      ? 1
-                      : 0,
+                  opacity: showAskAi ? 1 : 0,
                   duration: const Duration(milliseconds: 180),
                   child: IgnorePointer(
-                    ignoring: hideNav ||
-                        (index != MainNavigationController.homeIndex &&
-                            index != MainNavigationController.gardenIndex),
+                    ignoring: !showAskAi,
                     child: AskAiFab(onTap: () => openBotanistChat()),
                   ),
                 ),

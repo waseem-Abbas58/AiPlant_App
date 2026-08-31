@@ -1,11 +1,15 @@
 class SuggestionSection {
   const SuggestionSection({
     required this.heading,
-    required this.paragraphs,
+    this.paragraphs = const [],
+    this.steps = const [],
+    this.bullets = const [],
   });
 
   final String heading;
   final List<String> paragraphs;
+  final List<String> steps;
+  final List<String> bullets;
 }
 
 class SuggestionArticle {
@@ -30,68 +34,88 @@ class SuggestionArticle {
         SuggestionSection(
           heading: 'Overview',
           paragraphs: [
-            'Distinguishing between a species and a subspecies can be difficult: most people are aware of the definition of a species, but when it comes to defining a subspecies, it can be a bit hazy and subjective.',
-            'Technically, a species is a population or groups of populations that can potentially interbreed freely within and among themselves. This is a naturally-defined concept, something which exists by itself. Subspecies, on the other hand, are subgroups within a species that have different traits and are defined by scientists. Let’s examine this concept more closely.',
+            'The four cacti in the same terracotta pots are four species — not four “looks” of one plant. A species is the plant as it exists in nature. A variety is a natural twist inside that species: same kind, a slightly different look.',
+            'Garden shops often say “variety” when they mean a cultivar. That mix-up is why two labels on the same shelf can look like two different plants.',
           ],
         ),
         SuggestionSection(
           heading: 'What a species is',
           paragraphs: [
-            'In 1735, Carl von Linné revolutionized biology by introducing a new system of classification — modern taxonomy. The basic unit of this taxonomy is a species. Species are then grouped together into a genus, genera are grouped into families, and so on, all the way up to the grouping of domain.',
-            'A plant’s scientific name is a two-part binomial: the genus and the specific epithet. Together they name one species, written in italics, such as Monstera deliciosa. Plants of the same species share enough traits that they can typically reproduce with one another in nature.',
+            'The scientific name has two parts: genus + species. Written in italics, such as Monstera deliciosa. Plants of the same species share enough traits that they can typically reproduce with one another in the wild.',
           ],
         ),
         SuggestionSection(
           heading: 'What a variety is',
           paragraphs: [
-            'A variety is a naturally occurring variation within a species — often a difference in leaf color, flower form, or growth habit that shows up in the wild. It is written with “var.”, for example Hedera helix var. helix.',
-            'Gardeners often mix this up with cultivars. A cultivar is selected or bred by people and named in quotes, such as ‘Golden Pothos’. Varieties happen in nature; cultivars are maintained by horticulture.',
+            'A variety shows up in nature — leaf color, flower form, or habit — and is written with “var.”, for example Hedera helix var. helix.',
+          ],
+          bullets: [
+            'Variety — wild difference, written with var.',
+            'Cultivar — chosen or bred by people, written in quotes, such as ‘Golden Pothos’.',
+            'Same species can have many varieties and cultivars. The species name stays the same.',
           ],
         ),
       ],
     ),
     SuggestionArticle(
       imagePath: 'assets/images/home/suggestions/plant_styling.png',
-      category: 'Plant Identification',
-      title: 'Identifying Plant in 10 Steps',
+      category: 'Life Style',
+      title: 'Style a plant corner at home',
       sections: [
         SuggestionSection(
           heading: 'Overview',
           paragraphs: [
-            'Identifying a plant is easier when you work through the same checks every time. Use these ten steps with a clear photo of the leaves, stem, and pot or habitat.',
+            'A plant corner is not one hero pot. It is a table, a few cuttings, hanging vines, and space to pot without rushing. Group greens at different heights so the room feels full, not cluttered.',
           ],
         ),
         SuggestionSection(
-          heading: 'The 10 steps',
-          paragraphs: [
-            '1. Photograph the whole plant, then a close-up of one mature leaf.\n2. Note leaf shape: heart, oval, lance, palmate, or needle.\n3. Check the leaf edge: smooth, toothed, or lobed.\n4. Look at venation — parallel, pinnate, or palmate veins.\n5. Record stem type: woody, succulent, vining, or rosette.\n6. If there are flowers or fruit, photograph color and arrangement.\n7. Observe the potting mix and whether it stays wet or dries fast.\n8. Compare growth habit: upright, trailing, clumping, or climbing.\n9. Match these traits in a plant ID tool or field guide.\n10. Confirm with a second source before you treat pests or repot.',
+          heading: 'What to set out',
+          bullets: [
+            'A tray or table you can get dirty — soil will spill.',
+            'Nursery pots, a mix bin, and a bowl of clay pebbles for drainage.',
+            'A jar of cuttings and one plant you are potting now.',
+            'A hanging vine or tall snake plant behind, so the table is not a flat line.',
+          ],
+        ),
+        SuggestionSection(
+          heading: 'While you pot',
+          steps: [
+            'Work in good light so you can see the roots.',
+            'Gloves help with mix; they are not required for every plant.',
+            'Set the plant at the same soil line it had before.',
+            'Wipe the table when you are done — leftover mix invites fungus gnats.',
           ],
         ),
       ],
     ),
     SuggestionArticle(
       imagePath: 'assets/images/home/suggestions/beginner_houseplants.png',
-      category: 'Life Style',
-      title: 'Same seeds but different looking plants',
+      category: 'Plant Care',
+      title: 'Easy houseplants to start with',
       sections: [
         SuggestionSection(
           heading: 'Overview',
           paragraphs: [
-            'Two plants grown from the same seed packet can still look unlike each other. Light, pot size, watering, and temperature all change how a seedling develops — even when the genetics are the same.',
-            'Gardeners often assume a “different look” means a different species. More often it is the growing environment. Leaf size, color, and internodal spacing respond quickly to stress or to better care.',
+            'These six are the usual first shelf: snake plant, peace lily, spider plant, pothos, ZZ plant, and Chinese evergreen. They forgive a missed watering better than a fussy fern. Learn their names on the pot — then you can look up water and light without guessing.',
           ],
         ),
         SuggestionSection(
-          heading: 'Why seedlings diverge',
-          paragraphs: [
-            'A plant in a bright window stretches less and keeps thicker leaves. The same variety in a dim corner grows long, thin stems and paler foliage. That is etiolation, not a new cultivar.',
-            'Uneven watering does the same thing. One pot that stays soggy may yellow and stall; its sibling that dries between drinks stays compact. Always compare care before you rename the plant.',
+          heading: 'The six',
+          bullets: [
+            'Snake plant — upright swords; dries out between drinks.',
+            'Peace lily — droops when thirsty; likes even moisture, not a swamp.',
+            'Spider plant — arching striped leaves; pups for free plants.',
+            'Pothos — heart-shaped vines; bright or medium light.',
+            'ZZ plant — waxy leaflets; very dry-tolerant.',
+            'Chinese evergreen — patterned leaves; skip harsh sun.',
           ],
         ),
         SuggestionSection(
-          heading: 'What to check',
-          paragraphs: [
-            'Match light hours, pot volume, and soil mix if you want even growth. Rotate pots weekly so one side does not lean. If you truly have two varieties mixed in a packet, wait until true leaves appear — cotyledons look alike on many species.',
+          heading: 'How to not lose them',
+          bullets: [
+            'Pot with a hole. Saucer, not a sealed cachepot full of water.',
+            'Start in bright indirect light. Move closer to the window only if they stretch.',
+            'Water when the top of the mix is dry — not on a fixed weekday.',
           ],
         ),
       ],
@@ -99,25 +123,29 @@ class SuggestionArticle {
     SuggestionArticle(
       imagePath: 'assets/images/home/suggestions/repotting_basics.png',
       category: 'Plant Care',
-      title: 'When to Repot',
+      title: 'When it’s time to repot a plant',
       sections: [
         SuggestionSection(
           heading: 'Overview',
           paragraphs: [
-            'Repotting is not a yearly ritual. A plant needs a new pot when roots have filled the old one, when water races straight through, or when growth has stalled despite decent light and feeding.',
-            'Moving too soon into a huge pot keeps soil wet for too long and can lead to root rot. One size up — about 2–5 cm wider — is enough for most houseplants.',
+            'Repotting is not a yearly ritual. Move up when roots have filled the pot, water races straight through, or growth has stalled despite decent light. One size up — about 2–5 cm wider — is enough. A huge pot stays wet too long and can rot roots.',
           ],
         ),
         SuggestionSection(
           heading: 'Signs it is time',
-          paragraphs: [
-            'Roots circling the surface or pushing out of drainage holes, a pot that dries in a day, or a plant that tips over easily are the usual cues. Spring and early summer are the gentlest seasons to repot, when the plant can grow into fresh mix quickly.',
+          bullets: [
+            'Roots circling the surface or pushing out of the holes.',
+            'The pot dries in a day, or the plant tips over easily.',
+            'Spring and early summer are the gentlest seasons to repot.',
           ],
         ),
         SuggestionSection(
           heading: 'How to do it',
-          paragraphs: [
-            'Water the day before so the root ball slides out cleanly. Tease circling roots, set the plant at the same soil line as before, and fill gaps with a mix that matches the species — chunky for aroids, gritty for succulents. Wait about a week before a heavy watering if you disturbed many roots.',
+          steps: [
+            'Water the day before so the root ball slides out cleanly.',
+            'Tease circling roots. Set the plant at the same soil line as before.',
+            'Fill gaps with a mix that matches the plant — chunky for aroids, gritty for succulents.',
+            'Wait about a week before a heavy watering if you disturbed many roots.',
           ],
         ),
       ],
@@ -125,25 +153,30 @@ class SuggestionArticle {
     SuggestionArticle(
       imagePath: 'assets/images/home/suggestions/seasonal_care.png',
       category: 'Plant Care',
-      title: 'Seasonal Plant Care',
+      title: 'Seasonal care for indoor plants',
       sections: [
         SuggestionSection(
           heading: 'Overview',
           paragraphs: [
-            'Indoor plants still follow the year. Longer days in spring push new leaves; shorter, drier winter air slows growth. Care that worked in July often fails in January if you do not adjust water, light, and feeding.',
-            'Watch the plant, not the calendar alone. A south window in winter can be brighter than a shaded porch in summer. Change one habit at a time so you can see what helped.',
+            'Indoor plants still follow the year. A bright windowsill in winter can outshine a shaded porch in summer. Longer days push new leaves; short, dry winter air slows growth. Care that worked in July often fails in January. Watch the plant, not only the calendar.',
           ],
         ),
         SuggestionSection(
           heading: 'Spring and summer',
-          paragraphs: [
-            'Increase watering as soil dries faster, and resume a diluted fertilizer every two to four weeks for plants that are actively growing. This is also the window to prune, propagate, and repot. Keep leaves off hot glass; midday sun through a window can scorch.',
+          bullets: [
+            'Water as the mix dries faster.',
+            'Feed a diluted fertilizer every two to four weeks while it is growing.',
+            'Prune, propagate, and repot in this window.',
+            'Keep leaves off hot glass — midday sun through a window can scorch.',
           ],
         ),
         SuggestionSection(
           heading: 'Autumn and winter',
-          paragraphs: [
-            'Cut back on water and stop or reduce fertilizer while growth pauses. Group plants, use a pebble tray, or run a humidifier if indoor air is very dry. Move sensitive species away from heaters and cold drafts. Most pests show up in winter on stressed plants — check undersides of leaves every week or two.',
+          bullets: [
+            'Cut back on water. Stop or reduce fertilizer while growth pauses.',
+            'Group plants or use a pebble tray if the air is very dry.',
+            'Move sensitive plants away from heaters and cold drafts.',
+            'Check undersides of leaves every week or two — pests show up on stressed plants.',
           ],
         ),
       ],

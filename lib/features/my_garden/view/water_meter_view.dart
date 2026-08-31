@@ -15,7 +15,6 @@ import '../controller/my_garden_controller.dart';
 import '../data/plant_care_engine.dart';
 import '../model/my_garden_model.dart';
 import '../widgets/garden_empty_state.dart';
-import '../widgets/garden_filter_chip.dart';
 import '../widgets/garden_plant_image.dart';
 import '../widgets/garden_subpage_header.dart';
 import '../widgets/last_watered_sheet.dart';
@@ -86,7 +85,6 @@ class _WaterMeterViewState extends State<WaterMeterView> {
                             subtitle:
                                 'Add a plant to set when and how much to water.',
                             actionLabel: 'Add a plant',
-                            filledAction: true,
                             onAction: () => garden.openAddPlantSheet(context),
                           );
                         }
@@ -339,21 +337,29 @@ class _MeterBody extends StatelessWidget {
           color: AppColors.secondaryText,
         ),
         SizedBox(height: AppSpacing.small.h),
-        Wrap(
-          spacing: AppSpacing.small.w,
-          runSpacing: AppSpacing.small.h,
-          children: [
-            for (final amount in GardenCareSchedule.waterAmounts)
-              GardenFilterChip(
-                label:
-                    '$amount · ${PlantCareEngine.waterAmountMl(plant.care.copyWith(waterAmount: amount))} ml',
-                selected: plant.care.waterAmount == amount,
-                onTap: () => garden.updateCare(
-                  plant,
-                  plant.care.copyWith(waterAmount: amount),
+        CustomContainer(
+          color: AppColors.white,
+          borderRadius: AppRadius.large,
+          shadow: AppShadows.soft,
+          padding: EdgeInsets.all(AppSpacing.extraSmall.w),
+          child: Row(
+            children: [
+              for (final amount in GardenCareSchedule.waterAmounts)
+                Expanded(
+                  child: _WaterAmountSegment(
+                    amount: amount,
+                    millilitres: PlantCareEngine.waterAmountMl(
+                      plant.care.copyWith(waterAmount: amount),
+                    ),
+                    selected: plant.care.waterAmount == amount,
+                    onTap: () => garden.updateCare(
+                      plant,
+                      plant.care.copyWith(waterAmount: amount),
+                    ),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
         if (!justWatered) ...[
           SizedBox(height: AppSpacing.medium.h),
@@ -525,6 +531,61 @@ class _PlantPickChip extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _WaterAmountSegment extends StatelessWidget {
+  const _WaterAmountSegment({
+    required this.amount,
+    required this.millilitres,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String amount;
+  final int millilitres;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomContainer(
+      onTap: onTap,
+      pressScale: 0.98,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        margin: EdgeInsets.all(2.w),
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primaryGreen : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadius.medium.r),
+        ),
+        child: Column(
+          children: [
+            CustomText(
+              amount,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              color: selected ? AppColors.white : AppColors.primaryText,
+            ),
+            SizedBox(height: 2.h),
+            CustomText(
+              '$millilitres ml',
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              textAlign: TextAlign.center,
+              color: selected
+                  ? AppColors.white.withValues(alpha: 0.85)
+                  : AppColors.mutedText,
+            ),
+          ],
+        ),
       ),
     );
   }

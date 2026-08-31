@@ -113,10 +113,9 @@ class _TrendingPlantViewState extends State<TrendingPlantView> {
   }
 
   void _openArticle(SuggestionArticle article) {
-    HapticFeedback.selectionClick();
-    NavigationHelper.to(
-      () => SuggestionDetailView(article: article),
-      transition: Transition.fadeIn,
+    SuggestionDetailView.open(
+      article,
+      heroTag: 'trending-${article.imagePath}',
     );
   }
 
@@ -540,19 +539,19 @@ class _TrendingPlantViewState extends State<TrendingPlantView> {
           ),
           SizedBox(height: AppSpacing.small.h),
           _CultureBlock(
-            icon: Icons.yard_outlined,    
-            title: 'Garden Use',
+            icon: Icons.yard_outlined,     
+            title: 'Garden Use', 
             text: _plant.gardenUse,
-          ),
+          ), 
           SizedBox(height: AppSpacing.small.h),
           _CultureBlock(
             icon: Icons.lightbulb_outline_rounded,
-            title: 'Interesting Facts',
-            text: _plant.interestingFacts,
+            title: 'Interesting Facts', 
+            text: _plant.interestingFacts, 
           ),
-          SizedBox(height: AppSpacing.small.h),
+          SizedBox(height: AppSpacing.small.h), 
           _CultureBlock(
-            icon: Icons.eco_outlined,
+            icon: Icons.eco_outlined, 
             title: 'Symbolism',
             text: _plant.symbolism,
           ),

@@ -46,15 +46,19 @@ class GardenPlantDetailView extends StatelessWidget {
 
       return Scaffold(
         backgroundColor: AppColors.sageBackground,
-        floatingActionButton: AskAiFab(
-          semanticsLabel: 'Ask about ${current.name}',
-          onTap: () => openBotanistChat(
-            plantName: current.name,
-            imagePath: current.imagePath,
-            isAssetImage: current.isAssetImage,
-            plantId: current.id,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(bottom: 8.h),
+          child: AskAiFab(
+            semanticsLabel: 'Ask about ${current.name}',
+            onTap: () => openBotanistChat(
+              plantName: current.name,
+              imagePath: current.imagePath,
+              isAssetImage: current.isAssetImage,
+              plantId: current.id,
+            ),
           ),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: _PlantDetailScroll(plant: current, garden: garden),
       );
     });
@@ -163,16 +167,29 @@ class _PlantDetailScrollState extends State<_PlantDetailScroll> {
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                    ),
+                  ),
+                ),
+              ),
+              bottom: PreferredSize(
+                preferredSize: Size.fromHeight(32.h),
+                child: SizedBox(
+                  height: 32.h,
+                  width: double.infinity,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.sageBackground,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(36.r),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
             SliverToBoxAdapter(
-              child: Transform.translate(
-                offset: Offset(0, -24.h),
-                child: _Body(plant: plant, garden: garden),
-              ),
+              child: _Body(plant: plant, garden: garden),
             ),
           ],
         ),
@@ -211,12 +228,11 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomContainer(
       color: AppColors.sageBackground,
-      borderRadius: AppRadius.extraLarge,
       padding: EdgeInsets.fromLTRB(
         AppSpacing.medium.w,
-        AppSpacing.large.h,
+        AppSpacing.small.h,
         AppSpacing.medium.w,
-        40.h,
+        40.h + 72.h + MediaQuery.paddingOf(context).bottom,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +253,7 @@ class _Body extends StatelessWidget {
               color: AppColors.secondaryText,
             ),
           ],
-          SizedBox(height: 6.h),
+          SizedBox(height: 8.h),
           CustomText(
             garden.careLabelFor(plant),
             fontSize: 14,
@@ -246,13 +262,14 @@ class _Body extends StatelessWidget {
           ),
           if (PlantCareEngine.waterDueOn(plant, garden.today)) ...[
             SizedBox(height: AppSpacing.medium.h),
+            SizedBox(height: AppSpacing.medium.h),
             Row(
               children: [
                 Expanded(
                   child: CustomContainer(
                     onTap: () => garden.markWatered(plant),
                     color: AppColors.primaryGreen,
-                    borderRadius: AppRadius.medium,
+                    borderRadius: AppRadius.large,
                     alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(vertical: 14.h),
                     child: const CustomText(
@@ -270,7 +287,7 @@ class _Body extends StatelessWidget {
                     if (days != null) garden.snoozeWater(plant, days);
                   },
                   color: AppColors.white,
-                  borderRadius: AppRadius.medium,
+                  borderRadius: AppRadius.large,
                   shadow: AppShadows.soft,
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
@@ -288,7 +305,7 @@ class _Body extends StatelessWidget {
           SizedBox(height: AppSpacing.large.h),
           CustomContainer(
             color: AppColors.white,
-            borderRadius: AppRadius.extraLarge,
+            borderRadius: AppRadius.large,
             shadow: AppShadows.soft,
             padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.small.w,
@@ -335,7 +352,7 @@ class _Body extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: AppSpacing.extraLarge.h),
+          SizedBox(height: AppSpacing.medium.h),
           const CustomText(
             'Care details',
             fontSize: 18,
@@ -343,7 +360,7 @@ class _Body extends StatelessWidget {
             color: AppColors.primaryText,
             letterSpacing: -0.28,
           ),
-          SizedBox(height: AppSpacing.small.h),
+          SizedBox(height: AppSpacing.medium.h),
           _NeedRow(
             icon: Icons.wb_sunny_outlined,
             title: 'Sunlight',
@@ -357,12 +374,16 @@ class _Body extends StatelessWidget {
             icon: Icons.opacity_outlined,
             title: 'Water',
             value: 'Every ${garden.waterIntervalFor(plant)} days',
+            onTap: () => garden.openWaterMeter(plantId: plant.id),
           ),
           SizedBox(height: AppSpacing.small.h),
           _NeedRow(
             icon: Icons.place_outlined,
             title: 'Location',
             value: plant.care.location,
+            onTap: () => NavigationHelper.to(
+              () => GardenPlantSettingsView(plantId: plant.id),
+            ),
           ),
           SizedBox(height: AppSpacing.small.h),
           _NeedRow(
@@ -410,113 +431,231 @@ class _GrowthDiary extends StatelessWidget {
     return DateFormat('d MMM y').format(date);
   }
 
+  (GardenDiaryEntry, GardenDiaryEntry)? _comparePair(
+    List<GardenDiaryEntry> entries,
+  ) {
+    if (entries.length >= 2) {
+      return (entries.last, entries.first);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final entries = garden.diaryFor(plant.id);
+      final pair = _comparePair(entries);
 
       return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Expanded(
-              child: CustomText(
-                'Growth diary',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primaryText,
-                letterSpacing: -0.28,
-              ),
-            ),
-            CustomContainer(
-              onTap: () => garden.addDiaryPhoto(plant),
-              color: AppColors.primaryGreen.withValues(alpha: 0.12),
-              borderRadius: AppRadius.circular,
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.medium.w,
-                vertical: 6.h,
-              ),
-              child: const CustomText(
-                'Add photo',
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primaryGreen,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: AppSpacing.small.h),
-        if (entries.isEmpty)
-          CustomContainer(
-            color: AppColors.white,
-            borderRadius: AppRadius.large,
-            shadow: AppShadows.soft,
-            padding: EdgeInsets.all(AppSpacing.medium.w),
-            child: const CustomText(
-              'Add a photo to track how this plant grows.',
-              fontSize: 14,
-              color: AppColors.secondaryText,
-            ),
-          )
-        else
-          ...entries.map((entry) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.small.h),
-              child: CustomContainer(
-                color: AppColors.white,
-                borderRadius: AppRadius.large,
-                shadow: AppShadows.soft,
-                padding: EdgeInsets.all(AppSpacing.small.w + 2.w),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GardenPlantImage(
-                      path: entry.imagePath,
-                      isAsset: entry.isAssetImage,
-                      width: 72.w,
-                      height: 72.w,
-                      borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                    ),
-                    SizedBox(width: AppSpacing.small.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            _dateLabel(entry.createdAt),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryText,
-                          ),
-                          if (entry.note.isNotEmpty) ...[
-                            SizedBox(height: 4.h),
-                            CustomText(
-                              entry.note,
-                              fontSize: 13,
-                              color: AppColors.secondaryText,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    CustomContainer(
-                      onTap: () => garden.deleteDiaryEntry(entry),
-                      padding: EdgeInsets.all(AppSpacing.extraSmall.w),
-                      child: Icon(
-                        Icons.delete_outline_rounded,
-                        size: 20.sp,
-                        color: AppColors.mutedText,
-                      ),
-                    ),
-                  ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: CustomText(
+                  'Growth diary',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryText,
+                  letterSpacing: -0.28,
                 ),
               ),
-            );
-          }),
+              CustomContainer(
+                onTap: () => garden.addDiaryPhoto(plant),
+                color: AppColors.primaryGreen.withValues(alpha: 0.12),
+                borderRadius: AppRadius.large,
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.medium.w,
+                  vertical: 6.h,
+                ),
+                child: const CustomText(
+                  'Add photo',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryGreen,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppSpacing.small.h),
+          if (entries.isEmpty)
+            CustomContainer(
+              color: AppColors.white,
+              borderRadius: AppRadius.large,
+              shadow: AppShadows.soft,
+              padding: EdgeInsets.all(AppSpacing.medium.w),
+              child: const CustomText(
+                'Add two photos to compare how this plant grows.',
+                fontSize: 14,
+                color: AppColors.secondaryText,
+              ),
+            )
+          else ...[
+            if (pair == null)
+              Padding(
+                padding: EdgeInsets.only(bottom: AppSpacing.small.h),
+                child: const CustomText(
+                  'Add another photo to compare growth.',
+                  fontSize: 13,
+                  color: AppColors.secondaryText,
+                ),
+              )
+            else ...[
+              _GrowthCompare(
+                first: pair.$1,
+                latest: pair.$2,
+                dateLabel: _dateLabel,
+              ),
+              SizedBox(height: AppSpacing.small.h),
+            ],
+            ...entries.map((entry) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: AppSpacing.small.h),
+                child: CustomContainer(
+                  color: AppColors.white,
+                  borderRadius: AppRadius.large,
+                  shadow: AppShadows.soft,
+                  padding: EdgeInsets.all(AppSpacing.small.w + 2.w),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GardenPlantImage(
+                        path: entry.imagePath,
+                        isAsset: entry.isAssetImage,
+                        width: 72.w,
+                        height: 72.w,
+                        borderRadius: BorderRadius.circular(AppRadius.medium.r),
+                      ),
+                      SizedBox(width: AppSpacing.small.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              _dateLabel(entry.createdAt),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryText,
+                            ),
+                            if (entry.note.isNotEmpty) ...[
+                              SizedBox(height: 4.h),
+                              CustomText(
+                                entry.note,
+                                fontSize: 13,
+                                color: AppColors.secondaryText,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      CustomContainer(
+                        onTap: () => garden.deleteDiaryEntry(entry),
+                        padding: EdgeInsets.all(AppSpacing.extraSmall.w),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          size: 20.sp,
+                          color: AppColors.mutedText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        ],
+      );
+    });
+  }
+}
+
+class _GrowthCompare extends StatelessWidget {
+  const _GrowthCompare({
+    required this.first,
+    required this.latest,
+    required this.dateLabel,
+  });
+
+  final GardenDiaryEntry first;
+  final GardenDiaryEntry latest;
+  final String Function(DateTime) dateLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomContainer(
+      color: AppColors.white,
+      borderRadius: AppRadius.large,
+      shadow: AppShadows.soft,
+      padding: EdgeInsets.all(AppSpacing.small.w + 2.w),
+      child: Row(
+        children: [
+          Expanded(
+            child: _CompareShot(
+              entry: first,
+              label: 'First',
+              date: dateLabel(first.createdAt),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: Icon(
+              Icons.arrow_forward_rounded,
+              size: 18.sp,
+              color: AppColors.mutedText,
+            ),
+          ),
+          Expanded(
+            child: _CompareShot(
+              entry: latest,
+              label: 'Latest',
+              date: dateLabel(latest.createdAt),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CompareShot extends StatelessWidget {
+  const _CompareShot({
+    required this.entry,
+    required this.label,
+    required this.date,
+  });
+
+  final GardenDiaryEntry entry;
+  final String label;
+  final String date;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.medium.r),
+          child: GardenPlantImage(
+            path: entry.imagePath,
+            isAsset: entry.isAssetImage,
+            width: double.infinity,
+            height: 132.h,
+            fit: BoxFit.cover,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        CustomText(
+          label,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: AppColors.primaryText,
+        ),
+        CustomText(
+          date,
+          fontSize: 11,
+          color: AppColors.secondaryText,
+        ),
       ],
     );
-    });
   }
 }
 
@@ -619,12 +758,11 @@ class _NeedRow extends StatelessWidget {
               ],
             ),
           ),
-          if (onTap != null)
-            Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.mutedText,
-              size: 22.sp,
-            ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.mutedText,
+            size: 22.sp,
+          ),
         ],
       ),
     );

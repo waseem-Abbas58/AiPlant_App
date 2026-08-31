@@ -40,10 +40,10 @@ class CategoryCard extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(
-            right: -10.w,
-            top: -6.h,
-            bottom: -14.h,
-            width: 102.w,
+            right: -20.w,
+            top: -8.h,
+            bottom: -10.h,
+            width: 124.w,
             child: CustomImage(
               assetPath: imagePath,
               fit: BoxFit.contain,
@@ -53,16 +53,20 @@ class CategoryCard extends StatelessWidget {
           ),
           Positioned(
             left: 12.w,
-            top: 16.h,
-            right: 48.w,
-            child: CustomText(
-              title,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primaryText,
-              textAlign: TextAlign.left,
-              height: 1.25,
-              maxLines: 2,
+            top: 12.h,
+            bottom: 12.h,
+            right: 52.w,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CustomText(
+                title,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryText,
+                textAlign: TextAlign.left,
+                height: 1.25,
+                maxLines: 2,
+              ),
             ),
           ),
         ],
@@ -103,10 +107,10 @@ class CategoryWideCard extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(
-            right: -10.w,
-            top: -6.h,
-            bottom: -14.h,
-            width: 102.w,
+            right: -20.w,
+            top: -8.h,
+            bottom: -10.h,
+            width: 124.w,
             child: CustomImage(
               assetPath: imagePath,
               fit: BoxFit.contain,

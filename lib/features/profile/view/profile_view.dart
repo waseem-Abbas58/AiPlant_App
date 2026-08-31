@@ -9,10 +9,12 @@ import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_shadows.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/helpers/navigation_helper.dart';
+import '../../../shared/components/custom_snackbar.dart';
 import '../../../shared/widgets/custom_bottom_navigation.dart';
 import '../../../shared/widgets/custom_container.dart';
 import '../../../shared/widgets/custom_text.dart';
 import '../../../shared/widgets/user_avatar.dart';
+import '../../home/view/plant_statistics_view.dart';
 import '../../my_garden/controller/my_garden_controller.dart';
 import '../../my_garden/widgets/garden_pop_in.dart'; 
 import '../controller/profile_controller.dart';
@@ -46,12 +48,16 @@ class ProfileView extends GetView<ProfileController> {
               CustomBottomNavigation.barClearance(context) + AppSpacing.large.h,
             ),
             children: [
-              const CustomText(
-                'Profile',
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primaryText,
-                letterSpacing: -0.6,
+              const SizedBox(
+                width: double.infinity,
+                child: CustomText(
+                  'Profile',
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryText,
+                  letterSpacing: -0.6,
+                  textAlign: TextAlign.center,
+                ),
               ),
               SizedBox(height: AppSpacing.medium.h),
               GardenPopIn(child: _IdentityCard(controller: controller)),
@@ -68,6 +74,18 @@ class ProfileView extends GetView<ProfileController> {
               SizedBox(height: AppSpacing.small.h),
               GardenPopIn(
                 delay: const Duration(milliseconds: 80),
+                child: ProfileSettingRow(
+                  icon: Icons.bar_chart_rounded,
+                  title: 'Plant Statistics',
+                  subtitle: 'Identifies, care, and diagnosis',
+                  onTap: () => NavigationHelper.to(
+                    () => const PlantStatisticsView(),
+                  ),
+                ),
+              ),
+              SizedBox(height: AppSpacing.small.h),
+              GardenPopIn(
+                delay: const Duration(milliseconds: 100),
                 child: ProfileSettingRow(
                   icon: Icons.notifications_outlined,
                   title: 'Notifications',
@@ -99,6 +117,24 @@ class ProfileView extends GetView<ProfileController> {
               ),
               SizedBox(height: AppSpacing.small.h),
               GardenPopIn(
+                delay: const Duration(milliseconds: 180),
+                child: Obx(() {
+                  return ProfileSettingRow(
+                    icon: Icons.person_outline_rounded,
+                    title: 'User ID',
+                    subtitle: controller.userIdLabel,
+                    showChevron: false,
+                    trailing: Icon(
+                      Icons.copy_rounded,
+                      size: 18.sp,
+                      color: AppColors.mutedText,
+                    ),
+                    onTap: () => _copyUserId(controller.userId.value),
+                  );
+                }),
+              ),
+              SizedBox(height: AppSpacing.small.h),
+              GardenPopIn(
                 delay: const Duration(milliseconds: 200),
                 child: ProfileSettingRow(
                   icon: Icons.logout_rounded,
@@ -112,6 +148,16 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _copyUserId(String id) async {
+    if (id.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: id));
+    CustomSnackbar.success(
+      title: 'Copied',
+      message: 'User ID copied',
+      icon: Icons.copy_rounded,
     );
   }
 

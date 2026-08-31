@@ -4,10 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/helpers/navigation_helper.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text.dart';
+import '../../home/model/trending_plant.dart';
+import '../../home/view/trending_plant_view.dart';
 import '../../home/widgets/horizontal_content_card.dart';
 import '../controller/plant_finder_controller.dart';
 import '../widgets/garden_subpage_header.dart';
@@ -54,8 +57,8 @@ class PlantFinderResultsView extends GetView<PlantFinderController> {
                           padding: EdgeInsets.only(bottom: AppSpacing.small.h),
                           child: CustomText(
                             closest
-                                ? 'Closest preview · ${plants.length} plants · library when connected'
-                                : '${plants.length} preview plants · library when connected',
+                                ? 'Closest matches · ${plants.length} plants'
+                                : '${plants.length} plants',
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                             color: AppColors.secondaryText,
@@ -68,7 +71,19 @@ class PlantFinderResultsView extends GetView<PlantFinderController> {
                         imagePath: plant.imageAsset,
                         title: plant.name,
                         subtitle: plant.scientific,
-                        eyebrow: closest ? 'Closest' : 'Preview',
+                        eyebrow: closest ? 'Closest' : 'Match',
+                        onTap: () {
+                          final detail = TrendingPlant.byImagePath(
+                            plant.imageAsset,
+                          );
+                          if (detail == null) return;
+                          HapticFeedback.selectionClick();
+                          NavigationHelper.to(
+                            () => TrendingPlantView(plant: detail),
+                            fullscreenDialog: true,
+                            transition: Transition.downToUp,
+                          );
+                        },
                       );
                     },
                   );
@@ -85,6 +100,7 @@ class PlantFinderResultsView extends GetView<PlantFinderController> {
                   text: 'Done',
                   backgroundColor: AppColors.primaryGreen,
                   textColor: AppColors.white,
+                  borderRadius: AppRadius.large,
                   onPressed: () {
                     NavigationHelper.back();
                     NavigationHelper.back();

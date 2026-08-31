@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_container.dart';
@@ -177,6 +178,7 @@ class PlantFinderView extends GetView<PlantFinderController> {
                   text: 'Done',
                   backgroundColor: AppColors.primaryGreen,
                   textColor: AppColors.white,
+                  borderRadius: AppRadius.large,
                   onPressed: controller.apply,
                 ),
               ),

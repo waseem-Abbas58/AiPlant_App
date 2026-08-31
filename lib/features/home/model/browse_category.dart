@@ -100,18 +100,6 @@ const _previewCare = <String,
     '9 to 11',
     TrendingPest.succulent,
   ),
-  'groundcover': (
-    'Bright light',
-    'When dry',
-    'Loam',
-    'Outdoor',
-    'Water when the top is dry. Avoid a soggy mat.',
-    'Bright light; too little shade makes it thin.',
-    'Loam that drains. Tight wet soil invites rot.',
-    '10–27°C',
-    '4 to 9',
-    TrendingPest.house,
-  ),
   'edible': (
     'Full sun',
     'Keep moist',
@@ -242,170 +230,57 @@ class BrowseCategory {
       color: Color(0xFFF3EEE6),
     ),
     BrowseCategory(
-      id: 'groundcover',
-      title: 'Groundcover',
-      imagePath: 'assets/images/home/categories/groundcover.png',
-      color: Color(0xFFEEF1F3),
+      id: 'edible',
+      title: 'Edible Plants',
+      imagePath: 'assets/images/home/categories/edible_plants.png',
+      color: Color(0xFFEEF3E8),
     ),
   ];
 
-  static const edible = BrowseCategory(
-    id: 'edible',
-    title: 'Edible Plants',
-    imagePath: 'assets/images/home/categories/edible_plants.png',
-    color: Color(0xFFEEF3E8),
-    wide: true,
-  );
-
   static const _fern = 'assets/images/home/categories/ferns.png';
-  static const _flower = 'assets/images/home/categories/flowering_plants.png';
-  static const _cactus = 'assets/images/home/categories/cacti_succulents.png';
   static const _herb = 'assets/images/home/categories/herbs.png';
-  static const _shrub = 'assets/images/home/categories/shrubs.png';
-  static const _tree = 'assets/images/home/categories/trees.png';
   static const _veg = 'assets/images/home/categories/vegetables_fruits.png';
-  static const _ground = 'assets/images/home/categories/groundcover.png';
   static const _petunia = 'assets/images/home/trending/trending_devils_ivy.png';
   static const _orchid = 'assets/images/home/trending/trending_orchid.png';
-  static const _peace = 'assets/images/home/trending/trending_peace_lily.png';
   static const _aloe = 'assets/images/home/trending/trending_aloe.png';
   static const _jade = 'assets/images/home/trending/trending_jade.png';
   static const _snake = 'assets/images/home/trending/trending_snake_plant.png';
   static const _fiddle = 'assets/images/home/trending/trending_fiddle_leaf.png';
   static const _rubber = 'assets/images/home/trending/trending_rubber_plant.png';
   static const _corn = 'assets/images/home/trending/trending_corn_plant.png';
-  static const _monstera = 'assets/images/home/trending/trending_monstera.png';
 
   static const catalog = <String, List<CategoryPlant>>{
     'flowering': [
       CategoryPlant(name: 'Petunia', scientificName: 'Petunia × atkinsiana', imagePath: _petunia),
       CategoryPlant(name: 'Orchid', scientificName: 'Phalaenopsis', imagePath: _orchid),
-      CategoryPlant(name: 'Peace Lily', scientificName: 'Spathiphyllum wallisii', imagePath: _peace),
-      CategoryPlant(name: 'Hibiscus', scientificName: 'Hibiscus rosa-sinensis', imagePath: _flower),
-      CategoryPlant(name: 'Geranium', scientificName: 'Pelargonium × hortorum', imagePath: _petunia),
-      CategoryPlant(name: 'Begonia', scientificName: 'Begonia × semperflorens', imagePath: _flower),
-      CategoryPlant(name: 'Impatiens', scientificName: 'Impatiens walleriana', imagePath: _petunia),
-      CategoryPlant(name: 'Marigold', scientificName: 'Tagetes erecta', imagePath: _flower),
-      CategoryPlant(name: 'Zinnia', scientificName: 'Zinnia elegans', imagePath: _petunia),
-      CategoryPlant(name: 'Snapdragon', scientificName: 'Antirrhinum majus', imagePath: _flower),
-      CategoryPlant(name: 'Dahlia', scientificName: 'Dahlia pinnata', imagePath: _petunia),
-      CategoryPlant(name: 'Camellia', scientificName: 'Camellia japonica', imagePath: _flower),
-      CategoryPlant(name: 'Jasmine', scientificName: 'Jasminum officinale', imagePath: _peace),
-      CategoryPlant(name: 'Lavender', scientificName: 'Lavandula angustifolia', imagePath: _flower),
     ],
     'shrubs': [
-      CategoryPlant(name: 'Boxwood', scientificName: 'Buxus sempervirens', imagePath: _shrub),
-      CategoryPlant(name: 'Hydrangea', scientificName: 'Hydrangea macrophylla', imagePath: _flower),
-      CategoryPlant(name: 'Azalea', scientificName: 'Rhododendron indicum', imagePath: _shrub),
-      CategoryPlant(name: 'Lilac', scientificName: 'Syringa vulgaris', imagePath: _flower),
-      CategoryPlant(name: 'Forsythia', scientificName: 'Forsythia × intermedia', imagePath: _shrub),
-      CategoryPlant(name: 'Spirea', scientificName: 'Spiraea japonica', imagePath: _shrub),
       CategoryPlant(name: 'Rubber Plant', scientificName: 'Ficus elastica', imagePath: _rubber),
       CategoryPlant(name: 'Jade Plant', scientificName: 'Crassula ovata', imagePath: _jade),
-      CategoryPlant(name: 'Privet', scientificName: 'Ligustrum ovalifolium', imagePath: _shrub),
-      CategoryPlant(name: 'Barberry', scientificName: 'Berberis thunbergii', imagePath: _shrub),
-      CategoryPlant(name: 'Weigela', scientificName: 'Weigela florida', imagePath: _flower),
-      CategoryPlant(name: 'Viburnum', scientificName: 'Viburnum opulus', imagePath: _shrub),
     ],
     'herbs': [
       CategoryPlant(name: 'Basil', scientificName: 'Ocimum basilicum', imagePath: _herb),
       CategoryPlant(name: 'Mint', scientificName: 'Mentha spicata', imagePath: _herb),
-      CategoryPlant(name: 'Rosemary', scientificName: 'Salvia rosmarinus', imagePath: _herb),
-      CategoryPlant(name: 'Thyme', scientificName: 'Thymus vulgaris', imagePath: _herb),
-      CategoryPlant(name: 'Parsley', scientificName: 'Petroselinum crispum', imagePath: _herb),
-      CategoryPlant(name: 'Cilantro', scientificName: 'Coriandrum sativum', imagePath: _herb),
-      CategoryPlant(name: 'Sage', scientificName: 'Salvia officinalis', imagePath: _herb),
-      CategoryPlant(name: 'Oregano', scientificName: 'Origanum vulgare', imagePath: _herb),
-      CategoryPlant(name: 'Chives', scientificName: 'Allium schoenoprasum', imagePath: _herb),
-      CategoryPlant(name: 'Dill', scientificName: 'Anethum graveolens', imagePath: _herb),
-      CategoryPlant(name: 'Lavender', scientificName: 'Lavandula angustifolia', imagePath: _flower),
-      CategoryPlant(name: 'Lemongrass', scientificName: 'Cymbopogon citratus', imagePath: _herb),
     ],
     'vegetables': [
       CategoryPlant(name: 'Tomato', scientificName: 'Solanum lycopersicum', imagePath: _veg),
       CategoryPlant(name: 'Chili Pepper', scientificName: 'Capsicum annuum', imagePath: _veg),
-      CategoryPlant(name: 'Cucumber', scientificName: 'Cucumis sativus', imagePath: _veg),
-      CategoryPlant(name: 'Lettuce', scientificName: 'Lactuca sativa', imagePath: _herb),
-      CategoryPlant(name: 'Spinach', scientificName: 'Spinacia oleracea', imagePath: _herb),
-      CategoryPlant(name: 'Eggplant', scientificName: 'Solanum melongena', imagePath: _veg),
-      CategoryPlant(name: 'Strawberry', scientificName: 'Fragaria × ananassa', imagePath: _veg),
-      CategoryPlant(name: 'Lemon', scientificName: 'Citrus limon', imagePath: _tree),
-      CategoryPlant(name: 'Bean', scientificName: 'Phaseolus vulgaris', imagePath: _veg),
-      CategoryPlant(name: 'Zucchini', scientificName: 'Cucurbita pepo', imagePath: _veg),
-      CategoryPlant(name: 'Kale', scientificName: 'Brassica oleracea', imagePath: _herb),
-      CategoryPlant(name: 'Radish', scientificName: 'Raphanus sativus', imagePath: _veg),
     ],
     'trees': [
       CategoryPlant(name: 'Fiddle Leaf Fig', scientificName: 'Ficus lyrata', imagePath: _fiddle),
-      CategoryPlant(name: 'Rubber Plant', scientificName: 'Ficus elastica', imagePath: _rubber),
       CategoryPlant(name: 'Corn Plant', scientificName: 'Dracaena fragrans', imagePath: _corn),
-      CategoryPlant(name: 'Olive', scientificName: 'Olea europaea', imagePath: _tree),
-      CategoryPlant(name: 'Lemon Tree', scientificName: 'Citrus limon', imagePath: _tree),
-      CategoryPlant(name: 'Maple', scientificName: 'Acer palmatum', imagePath: _tree),
-      CategoryPlant(name: 'Oak', scientificName: 'Quercus robur', imagePath: _tree),
-      CategoryPlant(name: 'Birch', scientificName: 'Betula pendula', imagePath: _tree),
-      CategoryPlant(name: 'Willow', scientificName: 'Salix babylonica', imagePath: _tree),
-      CategoryPlant(name: 'Pine', scientificName: 'Pinus sylvestris', imagePath: _tree),
-      CategoryPlant(name: 'Magnolia', scientificName: 'Magnolia grandiflora', imagePath: _flower),
-      CategoryPlant(name: 'Crape Myrtle', scientificName: 'Lagerstroemia indica', imagePath: _tree),
     ],
     'ferns': [
       CategoryPlant(name: 'Boston Fern', scientificName: 'Nephrolepis exaltata', imagePath: _fern),
       CategoryPlant(name: 'Maidenhair Fern', scientificName: 'Adiantum raddianum', imagePath: _fern),
-      CategoryPlant(name: 'Staghorn Fern', scientificName: 'Platycerium bifurcatum', imagePath: _fern),
-      CategoryPlant(name: 'Bird’s Nest Fern', scientificName: 'Asplenium nidus', imagePath: _fern),
-      CategoryPlant(name: 'Kimberly Queen', scientificName: 'Nephrolepis obliterata', imagePath: _fern),
-      CategoryPlant(name: 'Autumn Fern', scientificName: 'Dryopteris erythrosora', imagePath: _fern),
-      CategoryPlant(name: 'Japanese Painted Fern', scientificName: 'Athyrium niponicum', imagePath: _fern),
-      CategoryPlant(name: 'Rabbit’s Foot Fern', scientificName: 'Davallia fejeensis', imagePath: _fern),
-      CategoryPlant(name: 'Holly Fern', scientificName: 'Cyrtomium falcatum', imagePath: _fern),
-      CategoryPlant(name: 'Cinnamon Fern', scientificName: 'Osmundastrum cinnamomeum', imagePath: _fern),
-      CategoryPlant(name: 'Leatherleaf Fern', scientificName: 'Rumohra adiantiformis', imagePath: _fern),
-      CategoryPlant(name: 'Button Fern', scientificName: 'Pellaea rotundifolia', imagePath: _fern),
-      CategoryPlant(name: 'Asparagus Fern', scientificName: 'Asparagus setaceus', imagePath: _fern),
-      CategoryPlant(name: 'Blue Star Fern', scientificName: 'Phlebodium aureum', imagePath: _fern),
     ],
     'cacti': [
       CategoryPlant(name: 'Aloe Vera', scientificName: 'Aloe vera', imagePath: _aloe),
-      CategoryPlant(name: 'Jade Plant', scientificName: 'Crassula ovata', imagePath: _jade),
       CategoryPlant(name: 'Snake Plant', scientificName: 'Dracaena trifasciata', imagePath: _snake),
-      CategoryPlant(name: 'Golden Barrel', scientificName: 'Echinocactus grusonii', imagePath: _cactus),
-      CategoryPlant(name: 'Prickly Pear', scientificName: 'Opuntia ficus-indica', imagePath: _cactus),
-      CategoryPlant(name: 'Christmas Cactus', scientificName: 'Schlumbergera truncata', imagePath: _cactus),
-      CategoryPlant(name: 'Echeveria', scientificName: 'Echeveria elegans', imagePath: _jade),
-      CategoryPlant(name: 'Haworthia', scientificName: 'Haworthia fasciata', imagePath: _aloe),
-      CategoryPlant(name: 'Zebra Cactus', scientificName: 'Haworthiopsis attenuata', imagePath: _aloe),
-      CategoryPlant(name: 'Bunny Ears', scientificName: 'Opuntia microdasys', imagePath: _cactus),
-      CategoryPlant(name: 'Panda Plant', scientificName: 'Kalanchoe tomentosa', imagePath: _jade),
-      CategoryPlant(name: 'String of Pearls', scientificName: 'Senecio rowleyanus', imagePath: _cactus),
-    ],
-    'groundcover': [
-      CategoryPlant(name: 'Creeping Thyme', scientificName: 'Thymus serpyllum', imagePath: _ground),
-      CategoryPlant(name: 'Irish Moss', scientificName: 'Sagina subulata', imagePath: _ground),
-      CategoryPlant(name: 'Ajuga', scientificName: 'Ajuga reptans', imagePath: _ground),
-      CategoryPlant(name: 'Pachysandra', scientificName: 'Pachysandra terminalis', imagePath: _ground),
-      CategoryPlant(name: 'Vinca', scientificName: 'Vinca minor', imagePath: _ground),
-      CategoryPlant(name: 'Sedum', scientificName: 'Sedum spurium', imagePath: _cactus),
-      CategoryPlant(name: 'Sweet Woodruff', scientificName: 'Galium odoratum', imagePath: _ground),
-      CategoryPlant(name: 'Liriope', scientificName: 'Liriope muscari', imagePath: _ground),
-      CategoryPlant(name: 'Ivy', scientificName: 'Hedera helix', imagePath: _monstera),
-      CategoryPlant(name: 'Creeping Jenny', scientificName: 'Lysimachia nummularia', imagePath: _ground),
-      CategoryPlant(name: 'Mondograss', scientificName: 'Ophiopogon japonicus', imagePath: _ground),
-      CategoryPlant(name: 'Clover', scientificName: 'Trifolium repens', imagePath: _ground),
     ],
     'edible': [
       CategoryPlant(name: 'Tomato', scientificName: 'Solanum lycopersicum', imagePath: _veg),
       CategoryPlant(name: 'Basil', scientificName: 'Ocimum basilicum', imagePath: _herb),
-      CategoryPlant(name: 'Mint', scientificName: 'Mentha spicata', imagePath: _herb),
-      CategoryPlant(name: 'Strawberry', scientificName: 'Fragaria × ananassa', imagePath: _veg),
-      CategoryPlant(name: 'Lemon', scientificName: 'Citrus limon', imagePath: _tree),
-      CategoryPlant(name: 'Chili Pepper', scientificName: 'Capsicum annuum', imagePath: _veg),
-      CategoryPlant(name: 'Lettuce', scientificName: 'Lactuca sativa', imagePath: _herb),
-      CategoryPlant(name: 'Rosemary', scientificName: 'Salvia rosmarinus', imagePath: _herb),
-      CategoryPlant(name: 'Kale', scientificName: 'Brassica oleracea', imagePath: _herb),
-      CategoryPlant(name: 'Cucumber', scientificName: 'Cucumis sativus', imagePath: _veg),
-      CategoryPlant(name: 'Sage', scientificName: 'Salvia officinalis', imagePath: _herb),
-      CategoryPlant(name: 'Thyme', scientificName: 'Thymus vulgaris', imagePath: _herb),
     ],
   };
 }
