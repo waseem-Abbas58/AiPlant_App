@@ -9,6 +9,7 @@ import '../../../core/helpers/navigation_helper.dart';
 import '../../../core/helpers/plant_image_store.dart';
 import '../../../shared/components/custom_snackbar.dart';
 import '../../main_navigation/controller/main_navigation_controller.dart';
+import '../data/garden_local_store.dart';
 import '../data/plant_care_engine.dart';
 import '../model/my_garden_model.dart';
 import '../view/add_plant_camera_view.dart';
@@ -17,11 +18,10 @@ import '../view/light_meter_view.dart';
 import '../view/water_meter_view.dart';
 import '../view/plant_photo_review_view.dart';
 import '../../plant_scan/controller/plant_scan_controller.dart';
+import '../../plant_scan/data/identify_flow.dart';
 import '../../plant_scan/data/plant_identify_repository.dart';
 import '../../plant_scan/model/plant_identify_result.dart';
 import '../../chatbot/data/botanist_navigator.dart';
-import '../../plant_scan/view/identify_failed_view.dart';
-import '../../plant_scan/view/identify_processing_view.dart';
 import '../../plant_scan/view/identify_result_view.dart';
 import '../widgets/change_group_sheet.dart';
 import '../widgets/diary_note_sheet.dart';
@@ -44,6 +44,63 @@ class MyGardenController extends GetxController {
   final careStreak = 0.obs;
   final lastStreakDay = Rxn<DateTime>();
   final homeTab = 0.obs;
+  final snapCollectionTab = 0.obs; // 0 = Seen, 1 = Wishlist
+  var _hydrated = false;
+  var _saveQueued = false;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _hydrate();
+    ever(plants, (_) => _scheduleSave());
+    ever(groups, (_) => _scheduleSave());
+    ever(snaps, (_) => _scheduleSave());
+    ever(wishlist, (_) => _scheduleSave());
+    ever(diary, (_) => _scheduleSave());
+    ever(completedKeys, (_) => _scheduleSave());
+    ever(careStreak, (_) => _scheduleSave());
+    ever(lastStreakDay, (_) => _scheduleSave());
+  }
+
+  Future<void> _hydrate() async {
+    final snapshot = await GardenLocalStore.load();
+    if (snapshot == null) {
+      _hydrated = true;
+      return;
+    }
+    plants.assignAll(snapshot.plants);
+    groups.assignAll(snapshot.groups);
+    snaps.assignAll(snapshot.snaps);
+    wishlist.assignAll(snapshot.wishlist);
+    diary.assignAll(snapshot.diary);
+    completedKeys
+      ..clear()
+      ..addAll(snapshot.completedKeys);
+    careStreak.value = snapshot.careStreak;
+    lastStreakDay.value = snapshot.lastStreakDay;
+    _hydrated = true;
+  }
+
+  void _scheduleSave() {
+    if (!_hydrated || _saveQueued) return;
+    _saveQueued = true;
+    Future<void>.delayed(const Duration(milliseconds: 280), () async {
+      _saveQueued = false;
+      if (!_hydrated) return;
+      await GardenLocalStore.save(
+        GardenLocalSnapshot(
+          plants: plants.toList(),
+          groups: groups.toList(),
+          snaps: snaps.toList(),
+          wishlist: wishlist.toList(),
+          diary: diary.toList(),
+          completedKeys: completedKeys.toSet(),
+          careStreak: careStreak.value,
+          lastStreakDay: lastStreakDay.value,
+        ),
+      );
+    });
+  }
 
   static DateTime _dateOnly(DateTime date) =>
       DateTime(date.year, date.month, date.day);
@@ -291,9 +348,6 @@ class MyGardenController extends GetxController {
 
   int get dailyRemaining =>
       _tasksOn(today).where((task) => !task.done).length;
-
-  List<GardenSnap> get seenSnaps =>
-      snaps.where((snap) => !isInGarden(snap.imagePath)).toList();
 
   bool isInGarden(String imagePath) =>
       plants.any((plant) => plant.imagePath == imagePath);
@@ -598,19 +652,8 @@ class MyGardenController extends GetxController {
     String path, {
     String groupId = GardenGroup.generalId,
   }) async {
-    final result = await NavigationHelper.to<PlantIdentifyResult>(
-      () => IdentifyProcessingView(imagePath: path),
-    );
+    final result = await IdentifyFlow.runSingle(imagePath: path);
     if (result == null) return;
-    if (!result.isIdentified) {
-      await NavigationHelper.to(
-        () => IdentifyFailedView(
-          reason: result.failReason,
-          categoryId: 'plant',
-        ),
-      );
-      return;
-    }
     final plantId = await NavigationHelper.to<String>(
       () => IdentifyResultView(
         result: result.copyWith(imagePath: path),
@@ -618,18 +661,6 @@ class MyGardenController extends GetxController {
       ),
     );
     if (plantId == null || plantId.isEmpty) return;
-    if (Get.isRegistered<MainNavigationController>()) {
-      Get.find<MainNavigationController>().onTabTapped(
-        MainNavigationController.gardenIndex,
-      );
-    }
-    final plant = plantById(plantId);
-    CustomSnackbar.success(
-      title: 'Added to garden',
-      message: plant == null
-          ? 'Saved'
-          : '${plant.name} added to ${_groupTitle(groupId)}',
-    );
   }
 
   Future<String?> cropPlantImage(String path) async {
@@ -671,7 +702,7 @@ class MyGardenController extends GetxController {
       groupId: groupId,
       care: (care ?? const GardenCareSchedule()).copyWith(nextWaterOn: today),
     );
-    plants.add(plant);
+    plants.insert(0, plant);
     wishlist.removeWhere(
       (item) =>
           item.imagePath == path ||
@@ -687,18 +718,38 @@ class MyGardenController extends GetxController {
     return plant;
   }
 
-  void addToWishlist({
+  Future<GardenPlant> addPickedPlantFromScan({
+    required String path,
+    String? name,
+    String scientificName = '',
+    String groupId = GardenGroup.generalId,
+    GardenCareSchedule? care,
+  }) async {
+    final stored = await persistPhotoIfNeeded(path);
+    return addPickedPlant(
+      stored,
+      name: name,
+      scientificName: scientificName,
+      groupId: groupId,
+      care: care,
+      notify: false,
+    );
+  }
+
+  Future<void> addToWishlist({
     required String imagePath,
     required String name,
     String scientificName = '',
-  }) {
+    bool notify = true,
+  }) async {
     final resolvedName =
         name.trim().isEmpty ? _fallbackPlantName() : name.trim();
-    if (isInGarden(imagePath)) {
+    final stored = await persistPhotoIfNeeded(imagePath);
+    if (isInGarden(stored)) {
       CustomSnackbar.info(title: 'Already in garden', message: resolvedName);
       return;
     }
-    if (isOnWishlist(imagePath)) {
+    if (isOnWishlist(stored)) {
       CustomSnackbar.info(title: 'On wishlist', message: resolvedName);
       return;
     }
@@ -708,14 +759,16 @@ class MyGardenController extends GetxController {
         id: 'wish-${DateTime.now().millisecondsSinceEpoch}',
         name: resolvedName,
         scientificName: scientificName,
-        imagePath: imagePath,
+        imagePath: stored,
         dateLabel: 'Today',
       ),
     );
-    CustomSnackbar.success(
-      title: 'Saved to wishlist',
-      message: resolvedName,
-    );
+    if (notify) {
+      CustomSnackbar.success(
+        title: 'Saved to wishlist',
+        message: resolvedName,
+      );
+    }
   }
 
   void removeWishlistItem(GardenWishlistItem item) {
@@ -888,10 +941,74 @@ class MyGardenController extends GetxController {
 
   void openSnapHistory() {
     homeTab.value = 2;
+    snapCollectionTab.value = 0;
+  }
+
+  void openWishlistCollection() {
+    homeTab.value = 2;
+    snapCollectionTab.value = 1;
   }
 
   void selectHomeTab(int index) {
     homeTab.value = index;
+  }
+
+  /// Copies camera/temp photos into app documents so garden data survives restarts.
+  Future<String> persistPhotoIfNeeded(String path) async {
+    if (path.startsWith('assets/')) return path;
+    if (path.replaceAll('\\', '/').contains('/ai_plant_images/')) {
+      return path;
+    }
+    try {
+      return await PlantImageStore.persistCopy(path);
+    } catch (_) {
+      return path;
+    }
+  }
+
+  void navigateToGardenTab() {
+    if (!Get.isRegistered<MainNavigationController>()) return;
+    Get.find<MainNavigationController>().onTabTapped(
+      MainNavigationController.gardenIndex,
+    );
+  }
+
+  void completeGardenSave(String plantId, {String? groupId}) {
+    selectHomeTab(0);
+    if (groupId != null && groupId.isNotEmpty) {
+      selectedGroupId.value = groupId;
+    }
+    navigateToGardenTab();
+    final plant = plantById(plantId);
+    CustomSnackbar.success(
+      title: 'Added to garden',
+      message: plant == null
+          ? 'Saved'
+          : '${plant.name} added to ${_groupTitle(plant.groupId)}',
+    );
+  }
+
+  void completeWishlistSave(String name) {
+    openWishlistCollection();
+    navigateToGardenTab();
+    CustomSnackbar.success(
+      title: 'Saved to wishlist',
+      message: name,
+    );
+  }
+
+  Future<String> recordIdentifySnap(
+    String path, {
+    String name = '',
+    String scientificName = '',
+  }) async {
+    final stored = await persistPhotoIfNeeded(path);
+    addIdentifySnap(
+      stored,
+      name: name,
+      scientificName: scientificName,
+    );
+    return stored;
   }
 
   void openNewGroupSheet(BuildContext context) {
@@ -1060,14 +1177,12 @@ class MyGardenController extends GetxController {
   }
 
   void openSeenIdentify(GardenSnap snap) {
-    final result = LocalPlantIdentifyRepository()
-        .previewForName(snap.name, snap.imagePath)
-        .copyWith(
-          commonName: snap.name,
-          scientificName: snap.scientificName,
-          imagePath: snap.imagePath,
-          sampleImageAsset: snap.isAssetImage ? snap.imagePath : null,
-        );
+    final result = PlantIdentifyResult.fromHistory(
+      imagePath: snap.imagePath,
+      commonName: snap.name,
+      scientificName: snap.scientificName,
+      sampleImageAsset: snap.isAssetImage ? snap.imagePath : null,
+    );
     NavigationHelper.to(() => IdentifyResultView(result: result));
   }
 
@@ -1102,11 +1217,29 @@ class MyGardenController extends GetxController {
     String name = '',
     String scientificName = '',
   }) {
+    final resolvedName =
+        name.trim().isEmpty ? _fallbackPlantName() : name.trim();
+    final existing = snaps.indexWhere((snap) => snap.imagePath == path);
+    if (existing >= 0) {
+      final current = snaps[existing];
+      snaps[existing] = GardenSnap(
+        id: current.id,
+        name: resolvedName,
+        scientificName: scientificName,
+        imagePath: path,
+        dateLabel: 'Today',
+      );
+      if (existing != 0) {
+        final updated = snaps.removeAt(existing);
+        snaps.insert(0, updated);
+      }
+      return;
+    }
     snaps.insert(
       0,
       GardenSnap(
         id: 'snap-${DateTime.now().millisecondsSinceEpoch}',
-        name: name.trim().isEmpty ? _fallbackPlantName() : name.trim(),
+        name: resolvedName,
         scientificName: scientificName,
         imagePath: path,
         dateLabel: 'Today',

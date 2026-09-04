@@ -20,13 +20,14 @@ import '../controller/chatbot_controller.dart';
 import '../data/botanist_chat.dart';
 import '../model/chat_message.dart';
 import '../view/botanist_call_view.dart';
+import '../widgets/botanist_rich_reply.dart';
 import '../widgets/chat_history_drawer.dart';
 import '../widgets/chat_plant_picker_sheet.dart';
 import '../widgets/chat_typing_dots.dart';
 
 class ChatbotView extends GetView<ChatbotController> {
-  const ChatbotView({super.key});  
- 
+  const ChatbotView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
@@ -98,9 +99,9 @@ class ChatbotView extends GetView<ChatbotController> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+                          ),
+                        ),
+                      );
   }
 
   Future<void> _pickPlant(BuildContext context) async {
@@ -183,7 +184,7 @@ class ChatbotView extends GetView<ChatbotController> {
                 runSpacing: AppSpacing.small.h,
                 children: [
                   for (final sticker in BotanistChat.stickers)
-                    CustomContainer(
+              CustomContainer(
                       onTap: () {
                         HapticFeedback.selectionClick();
                         Navigator.of(sheetContext).pop();
@@ -212,10 +213,10 @@ class _ChatHeader extends GetView<ChatbotController> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.medium.w,
-        AppSpacing.small.h,
-        AppSpacing.small.w,
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.medium.w,
+                  AppSpacing.small.h,
+                  AppSpacing.small.w,
         AppSpacing.small.h,
       ),
       child: Row(
@@ -390,8 +391,8 @@ class _FindInChatBar extends GetView<ChatbotController> {
           color: AppColors.white,
           borderRadius: AppRadius.large,
           padding: EdgeInsets.fromLTRB(4.w, 4.h, 4.w, 4.h),
-          child: Row(
-            children: [
+                child: Row(
+                  children: [
               IconButton(
                 tooltip: 'Close find',
                 onPressed: () {
@@ -404,11 +405,11 @@ class _FindInChatBar extends GetView<ChatbotController> {
                   color: AppColors.secondaryText,
                 ),
               ),
-              Expanded(
+                    Expanded(
                 child: TextField(
                   controller: controller.findController,
                   focusNode: controller.findFocus,
-                  cursorColor: AppColors.primaryGreen,
+                        cursorColor: AppColors.primaryGreen,
                   style: TextStyle(
                     fontSize: 15.sp,
                     color: AppColors.primaryText,
@@ -557,13 +558,13 @@ class _PlantContextBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.medium.r),
                 )
               else
-                CustomContainer(
+                    CustomContainer(
                   width: 40,
                   height: 40,
                   color: AppColors.sageBackground,
                   borderRadius: AppRadius.medium,
-                  alignment: Alignment.center,
-                  child: Icon(
+                      alignment: Alignment.center,
+                      child: Icon(
                     Icons.local_florist_outlined,
                     color: AppColors.primaryGreen,
                     size: 20.sp,
@@ -815,27 +816,33 @@ class _ChatBubble extends StatelessWidget {
               ],
               Flexible(
                 child: message.isTyping || !message.hasPhoto
-                    ? CustomContainer(
-                        color: fromUser
-                            ? AppColors.primaryGreen
-                            : AppColors.white,
-                        borderRadius: AppRadius.large,
-                        shadow: fromUser ? null : AppShadows.soft,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14.w,
-                          vertical: 10.h,
-                        ),
-                        constraints: BoxConstraints(maxWidth: 248.w),
-                        child: message.isTyping
-                            ? Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 4.h,
-                                  horizontal: 2.w,
-                                ),
-                                child: const ChatTypingDots(),
-                              )
-                            : _TextBubbleBody(message: message),
-                      )
+                    ? fromUser
+                        ? CustomContainer(
+                            color: AppColors.primaryGreen,
+                            borderRadius: AppRadius.large,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 14.w,
+                              vertical: 10.h,
+                            ),
+                            constraints: BoxConstraints(maxWidth: 248.w),
+                            child: _TextBubbleBody(message: message),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.only(
+                              right: 12.w,
+                              top: 2.h,
+                              bottom: 2.h,
+                            ),
+                            child: message.isTyping
+                                ? Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 6.h,
+                                      horizontal: 2.w,
+                                    ),
+                                    child: const ChatTypingDots(),
+                                  )
+                                : _TextBubbleBody(message: message),
+                          )
                     : _PhotoCard(message: message),
               ),
               if (fromUser) ...[
@@ -1101,13 +1108,19 @@ class _TextBubbleBody extends StatelessWidget {
         color: fromUser ? AppColors.white : AppColors.primaryText,
       );
     }
-    return _FindAwareText(
+    if (fromUser) {
+      return _FindAwareText(
+        text: message.text,
+        messageId: message.id,
+        fontSize: 14,
+        height: 1.4,
+        color: AppColors.white,
+        onUserBubble: true,
+      );
+    }
+    return BotanistRichReply(
       text: message.text,
       messageId: message.id,
-      fontSize: 14,
-      height: 1.4,
-      color: fromUser ? AppColors.white : AppColors.primaryText,
-      onUserBubble: fromUser,
     );
   }
 }
@@ -1244,13 +1257,16 @@ class _ComposerState extends State<_Composer> {
                 onClear: _chat.clearPendingPhoto,
               ),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     curve: Curves.easeOutCubic,
-                    height: 48.w,
+                    constraints: BoxConstraints(
+                      minHeight: 48.w,
+                      maxHeight: 132.w,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(14.r),
@@ -1269,28 +1285,25 @@ class _ComposerState extends State<_Composer> {
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => _chat.inputFocus.requestFocus(),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
                               child: TextField(
                                 controller: _chat.inputController,
                                 focusNode: _chat.inputFocus,
                                 cursorColor: AppColors.primaryGreen,
                                 cursorHeight: 18.w,
+                                minLines: 1,
+                                maxLines: 5,
+                                keyboardType: TextInputType.multiline,
                                 textAlign: TextAlign.start,
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: AppColors.primaryText,
                                   height: 1.25,
                                 ),
-                                strutStyle: StrutStyle(
-                                  fontSize: 16.sp,
-                                  height: 1.25,
-                                  forceStrutHeight: true,
-                                ),
                                 textCapitalization:
                                     TextCapitalization.sentences,
-                                textInputAction: TextInputAction.send,
-                                onSubmitted: (_) => _chat.send(),
+                                textInputAction: TextInputAction.newline,
                                 decoration: InputDecoration(
                                   isCollapsed: true,
                                   isDense: true,

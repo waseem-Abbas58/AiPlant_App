@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 class PlantSceneGate {
   PlantSceneGate._();
 
+  /// `false` = any photo passes (UI walkthrough only). UI-1: enabled for validation.
   static const enabled = true;
 
   static Future<bool> looksLikePlant(
@@ -37,6 +38,7 @@ class PlantSceneGate {
       final pixels = data.buffer.asUint8List();
       var green = 0;
       var bark = 0;
+      var bloom = 0;
       var counted = 0;
 
       for (var i = 0; i + 3 < pixels.length; i += 4) {
@@ -67,6 +69,16 @@ class PlantSceneGate {
           continue;
         }
 
+        final flower = s > 0.28 &&
+            v > 0.22 &&
+            ((h <= 25 || h >= 330) ||
+                (h >= 40 && h <= 75) ||
+                (h >= 270 && h <= 330));
+        if (flower) {
+          bloom++;
+          continue;
+        }
+
         final darkBark = r > g + 0.03 &&
             g >= b &&
             s > 0.24 &&
@@ -79,7 +91,10 @@ class PlantSceneGate {
 
       final greenShare = green / counted;
       final barkShare = bark / counted;
-      if (greenShare >= 0.10) return true;
+      final bloomShare = bloom / counted;
+      if (greenShare >= 0.08 || bloomShare >= 0.10 || greenShare + bloomShare >= 0.12) {
+        return true;
+      }
       if (categoryId == 'tree' &&
           (greenShare >= 0.06 || barkShare >= 0.14)) {
         return true;

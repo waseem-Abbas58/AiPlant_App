@@ -14,6 +14,24 @@ class GardenSnap {
   final String dateLabel;
 
   bool get isAssetImage => imagePath.startsWith('assets/');
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'scientificName': scientificName,
+        'imagePath': imagePath,
+        'dateLabel': dateLabel,
+      };
+
+  factory GardenSnap.fromJson(Map<String, dynamic> json) {
+    return GardenSnap(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      scientificName: json['scientificName'] as String? ?? '',
+      imagePath: json['imagePath'] as String? ?? '',
+      dateLabel: json['dateLabel'] as String? ?? '',
+    );
+  }
 }
 
 class GardenWishlistItem {
@@ -32,6 +50,24 @@ class GardenWishlistItem {
   final String dateLabel;
 
   bool get isAssetImage => imagePath.startsWith('assets/');
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'scientificName': scientificName,
+        'imagePath': imagePath,
+        'dateLabel': dateLabel,
+      };
+
+  factory GardenWishlistItem.fromJson(Map<String, dynamic> json) {
+    return GardenWishlistItem(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      scientificName: json['scientificName'] as String? ?? '',
+      imagePath: json['imagePath'] as String? ?? '',
+      dateLabel: json['dateLabel'] as String? ?? '',
+    );
+  }
 }
 
 class GardenDiaryEntry {
@@ -50,6 +86,25 @@ class GardenDiaryEntry {
   final String note;
 
   bool get isAssetImage => imagePath.startsWith('assets/');
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'plantId': plantId,
+        'imagePath': imagePath,
+        'createdAt': createdAt.toIso8601String(),
+        'note': note,
+      };
+
+  factory GardenDiaryEntry.fromJson(Map<String, dynamic> json) {
+    return GardenDiaryEntry(
+      id: json['id'] as String? ?? '',
+      plantId: json['plantId'] as String? ?? '',
+      imagePath: json['imagePath'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+      note: json['note'] as String? ?? '',
+    );
+  }
 }
 
 class GardenGroup {
@@ -80,6 +135,20 @@ class GardenGroup {
       title: title ?? this.title,
       coverImagePath:
           clearCover ? null : (coverImagePath ?? this.coverImagePath),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'coverImagePath': coverImagePath,
+      };
+
+  factory GardenGroup.fromJson(Map<String, dynamic> json) {
+    return GardenGroup(
+      id: json['id'] as String? ?? generalId,
+      title: json['title'] as String? ?? 'General',
+      coverImagePath: json['coverImagePath'] as String?,
     );
   }
 }
@@ -158,6 +227,47 @@ class GardenCareSchedule {
       nextWaterOn: clearNextWater ? null : (nextWaterOn ?? this.nextWaterOn),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'waterDays': waterDays,
+        'mistDays': mistDays,
+        'fertilizerMonths': fertilizerMonths,
+        'rotateMonths': rotateMonths,
+        'cutMonths': cutMonths,
+        'waterAmount': waterAmount,
+        'location': location,
+        'potSize': potSize,
+        'lightLevel': lightLevel,
+        'syncCalendar': syncCalendar,
+        'autoReminders': autoReminders,
+        'waterTime': waterTime,
+        'lastWateredAt': lastWateredAt?.toIso8601String(),
+        'nextWaterOn': nextWaterOn?.toIso8601String(),
+      };
+
+  factory GardenCareSchedule.fromJson(Map<String, dynamic> json) {
+    DateTime? date(Object? value) {
+      if (value is! String || value.isEmpty) return null;
+      return DateTime.tryParse(value);
+    }
+
+    return GardenCareSchedule(
+      waterDays: (json['waterDays'] as num?)?.toInt() ?? 7,
+      mistDays: (json['mistDays'] as num?)?.toInt() ?? 3,
+      fertilizerMonths: (json['fertilizerMonths'] as num?)?.toInt() ?? 2,
+      rotateMonths: (json['rotateMonths'] as num?)?.toInt() ?? 1,
+      cutMonths: (json['cutMonths'] as num?)?.toInt() ?? 6,
+      waterAmount: json['waterAmount'] as String? ?? 'Moderate',
+      location: json['location'] as String? ?? 'Indoor',
+      potSize: json['potSize'] as String? ?? 'Medium',
+      lightLevel: json['lightLevel'] as String? ?? 'Medium',
+      syncCalendar: json['syncCalendar'] as bool? ?? false,
+      autoReminders: json['autoReminders'] as bool? ?? false,
+      waterTime: json['waterTime'] as String? ?? '9:00 AM',
+      lastWateredAt: date(json['lastWateredAt']),
+      nextWaterOn: date(json['nextWaterOn']),
+    );
+  }
 }
 
 class GardenPlant {
@@ -213,6 +323,36 @@ class GardenPlant {
       notes: notes ?? this.notes,
       care: care ?? this.care,
       createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'imagePath': imagePath,
+        'status': status,
+        'scientificName': scientificName,
+        'groupId': groupId,
+        'notes': notes,
+        'care': care.toJson(),
+        'createdAt': createdAt.toIso8601String(),
+      };
+
+  factory GardenPlant.fromJson(Map<String, dynamic> json) {
+    final careRaw = json['care'];
+    return GardenPlant(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      imagePath: json['imagePath'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      scientificName: json['scientificName'] as String? ?? '',
+      groupId: json['groupId'] as String? ?? GardenGroup.generalId,
+      notes: json['notes'] as String? ?? '',
+      care: careRaw is Map
+          ? GardenCareSchedule.fromJson(Map<String, dynamic>.from(careRaw))
+          : const GardenCareSchedule(),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 }

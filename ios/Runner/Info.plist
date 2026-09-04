@@ -57,5 +57,10 @@
 	<string>Unlock the app with Face ID or fingerprint after App Lock.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Turn your spoken plant questions into text.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

@@ -13,7 +13,7 @@ import '../../../shared/widgets/custom_container.dart';
 import '../../../shared/widgets/custom_text.dart';
 import '../../chatbot/data/botanist_navigator.dart';
 import '../../my_garden/controller/my_garden_controller.dart';
-import '../../plant_scan/view/identify_disease_view.dart';
+import '../../plant_scan/data/diagnose_flow.dart';
 import '../../suggestions/view/suggestion_detail_view.dart';
 import '../model/suggestion_article.dart';
 import '../model/trending_plant.dart';
@@ -66,12 +66,7 @@ class _TrendingPlantViewState extends State<TrendingPlantView> {
 
   void _openPest(TrendingPest pest) {
     HapticFeedback.selectionClick();
-    NavigationHelper.to(
-      () => IdentifyDiseaseView(
-        imagePath: pest.imagePath,
-        plantName: _plant.name,
-      ),
-    );
+    DiagnoseFlow.start(plantName: _plant.name);
   }
 
   void _openWaterMeter() {

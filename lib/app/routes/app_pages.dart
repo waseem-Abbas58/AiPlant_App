@@ -1,7 +1,5 @@
 import 'package:get/get.dart';
 
-import '../../features/articles/bindings/articles_binding.dart';
-import '../../features/articles/view/articles_view.dart';
 import '../../features/authentication/bindings/authentication_binding.dart';
 import '../../features/authentication/bindings/forgot_password_binding.dart';
 import '../../features/authentication/bindings/otp_verification_binding.dart';
@@ -13,8 +11,6 @@ import '../../features/authentication/view/otp_verification_view.dart';
 import '../../features/authentication/view/password_reset_success_view.dart';
 import '../../features/authentication/view/reset_password_view.dart';
 import '../../features/authentication/view/signup_view.dart';
-import '../../features/disease_detection/bindings/disease_detection_binding.dart';
-import '../../features/disease_detection/view/disease_detection_view.dart';
 import '../../features/main_navigation/bindings/main_navigation_binding.dart';
 import '../../features/main_navigation/view/main_navigation_view.dart';
 import '../../features/my_garden/bindings/my_garden_binding.dart';
@@ -23,8 +19,6 @@ import '../../features/my_garden/view/my_garden_view.dart';
 import '../../features/my_garden/view/plant_finder_view.dart';
 import '../../features/onboarding/bindings/onboarding_binding.dart';
 import '../../features/onboarding/view/onboarding_view.dart';
-import '../../features/plant_details/bindings/plant_details_binding.dart';
-import '../../features/plant_details/view/plant_details_view.dart';
 import '../../features/plant_scan/bindings/plant_scan_binding.dart';
 import '../../features/plant_scan/view/plant_scan_view.dart';
 import '../../features/profile/bindings/profile_binding.dart';
@@ -33,8 +27,6 @@ import '../../features/quiz/view/quiz_welcome_view.dart';
 import '../../features/suggestions/view/suggestion_detail_view.dart';
 import '../../features/chatbot/bindings/chatbot_binding.dart';
 import '../../features/chatbot/view/chatbot_view.dart';
-import '../../features/reminder/bindings/reminder_binding.dart';
-import '../../features/reminder/view/reminder_view.dart';
 import '../../features/search/bindings/search_binding.dart';
 import '../../features/search/view/search_view.dart';
 import '../../features/settings/bindings/settings_binding.dart';
@@ -100,16 +92,6 @@ class AppPages {
       binding: PlantScanBinding(),
     ),
     GetPage(
-      name: RouteNames.diseaseDetection,
-      page: DiseaseDetectionView.new,
-      binding: DiseaseDetectionBinding(),
-    ),
-    GetPage(
-      name: RouteNames.plantDetails,
-      page: PlantDetailsView.new,
-      binding: PlantDetailsBinding(),
-    ),
-    GetPage(
       name: RouteNames.search,
       page: SearchView.new,
       binding: SearchBinding(),
@@ -125,19 +107,9 @@ class AppPages {
       binding: PlantFinderBinding(),
     ),
     GetPage(
-      name: RouteNames.reminder,
-      page: ReminderView.new,
-      binding: ReminderBinding(),
-    ),
-    GetPage(
       name: RouteNames.chat,
       page: ChatbotView.new,
       binding: ChatbotBinding(),
-    ),
-    GetPage(
-      name: RouteNames.articles,
-      page: ArticlesView.new,
-      binding: ArticlesBinding(),
     ),
     GetPage(
       name: RouteNames.subscription,

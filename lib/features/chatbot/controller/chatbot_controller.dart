@@ -10,11 +10,15 @@ import '../../../core/helpers/permission_helper.dart';
 import '../../../shared/components/custom_snackbar.dart';
 import '../../my_garden/controller/my_garden_controller.dart';
 import '../../my_garden/model/my_garden_model.dart';
-import '../data/botanist_chat.dart'; 
-import '../model/chat_message.dart';  
+import '../data/botanist_api.dart';
+import '../data/botanist_chat.dart';
+import '../model/chat_message.dart';
 
 class ChatbotController extends GetxController {
-  ChatbotController();
+  ChatbotController({BotanistApi? botanistApi})
+      : _botanistApi = botanistApi ?? BotanistApi();
+
+  final BotanistApi _botanistApi;
 
   final TextEditingController inputController = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -438,14 +442,26 @@ class ChatbotController extends GetxController {
     );
     _scrollToEnd();
 
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    final question = text.isEmpty ? 'photo' : text;
+    final plant = plantContext.value;
+    final liveReply = await _botanistApi.ask(
+      message: question,
+      plantName: plant?.name ?? '',
+      issue: plant?.issue ?? '',
+    );
     if (isClosed) return null;
 
     messages.removeWhere((line) => line.id == typingId);
-    final reply = BotanistChat.replyFor(
-      text.isEmpty ? 'photo' : text,
-      plantContext.value,
-    );
+    final live = liveReply?.trim() ?? '';
+    if (live.isEmpty) {
+      CustomSnackbar.info(
+        title: 'Ask AI offline',
+        message: 'Start the backend with npm run dev, then send again.',
+      );
+    }
+    final reply = live.isNotEmpty
+        ? live
+        : BotanistChat.replyFor(question, plant);
     messages.add(
       ChatMessage(
         id: 'b-${DateTime.now().microsecondsSinceEpoch}',

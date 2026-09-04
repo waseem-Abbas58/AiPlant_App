@@ -10,19 +10,24 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/helpers/navigation_helper.dart';
 import '../../../shared/widgets/custom_container.dart';
 import '../../../shared/widgets/custom_text.dart';
+import '../data/identify_flow.dart';
 import '../data/plant_identify_repository.dart';
-import '../data/plant_scene_gate.dart';
 import '../model/plant_identify_result.dart';
 
 class IdentifyProcessingView extends StatefulWidget {
   const IdentifyProcessingView({
     super.key,
-    required this.imagePath,
+    required this.imagePaths,
     this.categoryId = 'plant',
+    required this.scanId,
   });
 
-  final String imagePath;
+  final List<String> imagePaths;
   final String categoryId;
+  final String scanId;
+
+  String get imagePath =>
+      imagePaths.isEmpty ? '' : imagePaths.first;
 
   @override
   State<IdentifyProcessingView> createState() => _IdentifyProcessingViewState();
@@ -31,19 +36,38 @@ class IdentifyProcessingView extends StatefulWidget {
 class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
   var _step = 0;
   var _finished = false;
-  var _rejected = false;
+  var _failReason = IdentifyFailReason.none;
 
-  String get _detectLabel => switch (widget.categoryId) {
-        'tree' => 'Looking at leaf and bark',
-        'mushroom' => 'Looking at cap and stem',
-        'weed' => 'Looking at the whole plant',
-        'disease' => 'Looking for leaf damage',
-        _ => 'Looking at the leaf',
+  static const _steps = [
+    'Checking photo quality',
+    'Looking for a plant',
+    'Analyzing plant features',
+    'Comparing possible matches',
+    'Preparing result',
+  ];
+
+  bool get _failed => _failReason != IdentifyFailReason.none;
+
+  String get _statusSubtitle {
+    if (_failed) {
+      return switch (_failReason) {
+        IdentifyFailReason.notPlant => 'No supported plant subject detected',
+        IdentifyFailReason.tooBlurry => 'Photo too blurry',
+        IdentifyFailReason.tooDark => 'Not enough light',
+        IdentifyFailReason.subjectTooSmall => 'Move closer to the plant',
+        IdentifyFailReason.duplicateAngle => 'Try a different angle',
+        IdentifyFailReason.multiplePlants =>
+          'Multiple plants in frame — focus on one',
+        IdentifyFailReason.offline ||
+        IdentifyFailReason.timeout ||
+        IdentifyFailReason.serverError =>
+          'Identification service unavailable',
+        IdentifyFailReason.aiUnavailable => 'Live identify not connected yet',
+        _ => 'Could not continue',
       };
-
-  String get _findLabel {
-    if (_rejected) return 'No plant in this photo';
-    return 'Looking for a plant';
+    }
+    if (_step >= _steps.length) return 'Done';
+    return _steps[_step.clamp(0, _steps.length - 1)];
   }
 
   PlantIdentifyRepository get _repository {
@@ -66,43 +90,50 @@ class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
   }
 
   Future<void> _run() async {
-    await Future<void>.delayed(const Duration(milliseconds: 380));
+    if (widget.imagePaths.isEmpty) {
+      _popFailed(IdentifyFailReason.lowQuality);
+      return;
+    }
+
+    final identify = IdentifyFlow.identifySafe(
+      repository: _repository,
+      imagePaths: widget.imagePaths,
+      categoryId: widget.categoryId,
+      scanId: widget.scanId,
+    );
+
     if (!mounted || _finished) return;
     setState(() => _step = 1);
-    final plantLike = await PlantSceneGate.looksLikePlant(
-      widget.imagePath,
-      categoryId: widget.categoryId,
-    );
+    await Future<void>.delayed(const Duration(milliseconds: 220));
     if (!mounted || _finished) return;
-    if (!plantLike) {
-      setState(() => _rejected = true);
-      await Future<void>.delayed(const Duration(milliseconds: 900));
-      if (!mounted || _finished) return;
-      _finished = true;
-      Navigator.of(context).pop<PlantIdentifyResult>(
-        PlantIdentifyResult.notAPlant(widget.imagePath),
-      );
-      return;
-    }
-    final result = await _repository.identifyFromImage(
-      widget.imagePath,
-      categoryId: widget.categoryId,
-    );
-    if (!mounted || _finished) return;
-    if (!result.isIdentified) {
-      setState(() => _rejected = true);
-      await Future<void>.delayed(const Duration(milliseconds: 900));
-      if (!mounted || _finished) return;
-      _finished = true;
-      Navigator.of(context).pop<PlantIdentifyResult>(result);
-      return;
-    }
     setState(() => _step = 2);
-    await Future<void>.delayed(const Duration(milliseconds: 320));
+
+    final result = await identify;
     if (!mounted || _finished) return;
+
+    if (!result.isIdentified) {
+      setState(() => _failReason = result.failReason);
+      _pop(result);
+      return;
+    }
+
     setState(() => _step = 3);
-    await Future<void>.delayed(const Duration(milliseconds: 280));
+    await Future<void>.delayed(const Duration(milliseconds: 80));
     if (!mounted || _finished) return;
+    setState(() => _step = 4);
+    _pop(result);
+  }
+
+  void _popFailed(IdentifyFailReason reason) {
+    if (_finished) return;
+    _finished = true;
+    Navigator.of(context).pop<PlantIdentifyResult>(
+      PlantIdentifyResult.failed(widget.imagePath, reason),
+    );
+  }
+
+  void _pop(PlantIdentifyResult result) {
+    if (_finished) return;
     _finished = true;
     Navigator.of(context).pop<PlantIdentifyResult>(result);
   }
@@ -142,6 +173,14 @@ class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
                   ),
                 ),
               ),
+              if (widget.imagePaths.length > 1) ...[
+                SizedBox(height: AppSpacing.small.h),
+                CustomText(
+                  '${widget.imagePaths.length} photos · scan ${widget.scanId.split('-').last}',
+                  fontSize: 12,
+                  color: const Color(0xFF8A8A8A),
+                ),
+              ],
               SizedBox(height: AppSpacing.large.h),
               const CustomText(
                 'Identifying',
@@ -151,36 +190,23 @@ class _IdentifyProcessingViewState extends State<IdentifyProcessingView> {
                 letterSpacing: -0.4,
               ),
               SizedBox(height: 6.h),
-              const CustomText(
-                'Live ID when AI is connected',
+              CustomText(
+                _statusSubtitle,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
-                color: Color(0xFF8A8A8A),
+                color: const Color(0xFF8A8A8A),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: AppSpacing.large.h),
               _StepColumn(
                 children: [
-                  _StepRow(
-                    label: 'Reading the photo',
-                    done: _step >= 1,
-                    active: _step == 0,
-                  ),
-                  _StepRow(
-                    label: _findLabel,
-                    done: !_rejected && _step >= 2,
-                    active: !_rejected && _step == 1,
-                    failed: _rejected,
-                  ),
-                  _StepRow(
-                    label: _detectLabel,
-                    done: !_rejected && _step >= 3,
-                    active: !_rejected && _step == 2,
-                  ),
-                  _StepRow(
-                    label: 'Picking similar examples',
-                    done: !_rejected && _step >= 3,
-                    active: !_rejected && _step == 3,
-                  ),
+                  for (var i = 0; i < _steps.length; i++)
+                    _StepRow(
+                      label: _steps[i],
+                      done: !_failed && _step > i,
+                      active: !_failed && _step == i,
+                      failed: _failed && i == _step.clamp(0, _steps.length - 1),
+                    ),
                 ],
               ),
               const Spacer(flex: 2),

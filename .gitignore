@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local API keys — never commit
+keys.json
+
+# Backend local files
+backend/.env
+backend/node_modules/
+backend/logs/
+backend/uploads/
+backend/tmp/
+backend/temp/

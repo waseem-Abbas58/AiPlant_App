@@ -40,6 +40,7 @@ class BotanistChat {
   static String replyFor(String question, ChatPlantContext? plant) {
     final q = question.toLowerCase();
     final name = plant?.name ?? 'your plant';
+    final issue = plant?.issue?.trim() ?? '';
     final trimmed = question.trim();
 
     if (trimmed.isNotEmpty && !RegExp(r'[A-Za-z0-9]').hasMatch(trimmed)) {
@@ -83,7 +84,11 @@ class BotanistChat {
           'Go one size up, use fresh mix, and wait a few days before a full watering.';
     }
 
+    if (issue.isNotEmpty) {
+      return 'For $name, the health scan mentioned $issue. '
+          'Ask what to do today, how to water, or whether to isolate the plant.';
+    }
     return 'Ask about watering, light, yellow leaves, pests, or toxicity for $name. '
-        'You can also attach a leaf photo. This is a local care guide — live AI plugs in later.';
+        'You can also attach a leaf photo.';
   }
 }

@@ -98,6 +98,11 @@ class CustomTextField extends StatelessWidget {
         fillColor ?? (isDark ? AppColors.darkSurface : AppColors.surface);
     final hintColor =
         isDark ? AppColors.darkTextSecondary : AppColors.mutedText;
+    // Light fills are used across the app even in system dark mode — keep typed text dark.
+    final typedTextColor = ThemeData.estimateBrightnessForColor(defaultFill) ==
+            Brightness.dark
+        ? AppColors.darkTextPrimary
+        : AppColors.primaryText;
 
     OutlineInputBorder buildBorder(Color color, {double? width}) {
       return OutlineInputBorder(
@@ -154,9 +159,8 @@ class CustomTextField extends StatelessWidget {
       autofillHints: autofillHints,
       style: style ??
           theme.textTheme.bodyLarge?.copyWith(
-            color: isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.primaryText,
+            color: typedTextColor,
+            fontWeight: FontWeight.w400,
           ),
       cursorColor: cursorColor ?? AppColors.blue,
       decoration: InputDecoration(

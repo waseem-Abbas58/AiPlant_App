@@ -1,288 +1,128 @@
-import '../../my_garden/data/plant_care_engine.dart';
 import '../../my_garden/model/my_garden_model.dart';
 import '../model/plant_identify_result.dart';
-import 'plant_scene_gate.dart';
 
-/// Swap [LocalPlantIdentifyRepository] for an API implementation later.
-/// Keep this interface so garden and scan stay unchanged.
+/// Swap [LocalPlantIdentifyRepository] for [ApiPlantIdentifyRepository].
+///
+/// Contract (locked):
+/// - [identifyFromImages] → species only → [PlantIdentifyResult]
+/// - [diagnoseFromImages] → leaf disease only → [PlantDiseaseHint]
+/// Never return disease diagnosis from identify, or species from diagnose.
+///
+/// Before upload, prepare bytes with [PlantImageUpload.prepareWithReason]
+/// (JPEG/PNG, max 8 MB, multipart field `image`).
 abstract class PlantIdentifyRepository {
-  Future<PlantIdentifyResult> identifyFromImage(
-    String imagePath, {
+  Future<PlantIdentifyResult> identifyFromImages(
+    List<String> imagePaths, {
     String categoryId = 'plant',
   });
 
-  Future<PlantDiseaseHint> diagnoseFromImage(String imagePath);
+  Future<PlantDiseaseHint> diagnoseFromImages(
+    List<String> imagePaths, {
+    String plantName = '',
+    String symptomId = '',
+  });
 }
 
+/// On-device gate only. No fake species or disease names
+/// unless [demoUiSuccess] is on for screen walkthrough.
 class LocalPlantIdentifyRepository implements PlantIdentifyRepository {
   static const unnamedPlant = 'Unnamed plant';
 
-  static const _monstera =
-      'assets/images/home/trending/trending_monstera.png';
-  static const _snakePlant =
-      'assets/images/home/trending/trending_snake_plant.png';
-  static const _peaceLily =
-      'assets/images/home/trending/trending_peace_lily.png';
-  static const _rubber = 'assets/images/home/trending/trending_rubber_plant.png';
-  static const _fiddle = 'assets/images/home/trending/trending_fiddle_leaf.png';
-  static const _corn = 'assets/images/home/trending/trending_corn_plant.png';
-  static const _aloe = 'assets/images/home/trending/trending_aloe.png';
-  static const _jade = 'assets/images/home/trending/trending_jade.png';
-  static const _orchid = 'assets/images/home/trending/trending_orchid.png';
+  /// Off now that live Kindwise / backend identify is wired.
+  static const demoUiSuccess = false;
 
   @override
-  Future<PlantIdentifyResult> identifyFromImage(
-    String imagePath, {
+  Future<PlantIdentifyResult> identifyFromImages(
+    List<String> imagePaths, {
     String categoryId = 'plant',
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    final plantLike = await PlantSceneGate.looksLikePlant(
-      imagePath,
-      categoryId: categoryId,
-    );
-    if (!plantLike) {
-      return PlantIdentifyResult.notAPlant(imagePath);
+    if (imagePaths.isEmpty) {
+      return PlantIdentifyResult.failed('', IdentifyFailReason.lowQuality);
     }
-    await Future<void>.delayed(const Duration(milliseconds: 700));
-    return _previewFor(categoryId, imagePath);
-  }
-
-  PlantIdentifyResult previewForName(String name, String imagePath) {
-    final n = name.toLowerCase();
-    final categoryId = n.contains('fiddle') || n.contains('olive')
-        ? 'tree'
-        : n.contains('agaric') || n.contains('mushroom')
-            ? 'mushroom'
-            : n.contains('oxalis') || n.contains('weed') || n.contains('clover')
-                ? 'weed'
-                : n.contains('lily') && n.contains('peace')
-                    ? 'disease'
-                    : 'plant';
-    return _previewFor(categoryId, imagePath).copyWith(
-      commonName: name,
+    final imagePath = imagePaths.first;
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    if (!demoUiSuccess) {
+      return PlantIdentifyResult.aiUnavailable(imagePath);
+    }
+    final angleNote = imagePaths.length > 1
+        ? ' · ${imagePaths.length} angles'
+        : '';
+    return PlantIdentifyResult(
       imagePath: imagePath,
+      commonName: 'Demo plant$angleNote',
+      scientificName: 'UI preview only',
+      confidence: 0.82,
+      careHighlights: const [
+        'When top soil is dry',
+        'Bright, indirect',
+        'Normal home air',
+      ],
+      similarMatches: const [
+        PlantIdentifyMatch(
+          commonName: 'Similar demo A',
+          scientificName: 'Preview match',
+          confidence: 0.61,
+        ),
+        PlantIdentifyMatch(
+          commonName: 'Similar demo B',
+          scientificName: 'Preview match',
+          confidence: 0.48,
+        ),
+      ],
+      kind: IdentifiedKind.plant,
+      toxicity: const PlantToxicity(
+        toxicToPets: false,
+        toxicToKids: false,
+        summary: 'Demo toxicity — not a real reading.',
+      ),
+      care: const GardenCareSchedule(
+        waterDays: 7,
+        lightLevel: 'Bright',
+        waterAmount: 'Moderate',
+        syncCalendar: true,
+      ),
+      isIdentified: true,
+      isLocalPreview: true,
     );
-  }
-
-  PlantIdentifyResult _previewFor(String categoryId, String imagePath) {
-    return switch (categoryId) {
-      'tree' => _wateredPreview(
-          commonName: 'Fiddle Leaf Fig',
-          extras: const [
-            'Bright, indirect light',
-            'Wipe dusty leaves',
-          ],
-          result: (care, highlights) => PlantIdentifyResult(
-            imagePath: imagePath,
-            commonName: 'Fiddle Leaf Fig',
-            scientificName: 'Ficus lyrata',
-            confidence: 0,
-            careHighlights: highlights,
-            care: care,
-            sampleImageAsset: _fiddle,
-            similarMatches: const [
-              PlantIdentifyMatch(
-                commonName: 'Rubber Plant',
-                scientificName: 'Ficus elastica',
-                imageAsset: _rubber,
-              ),
-              PlantIdentifyMatch(
-                commonName: 'Corn Plant',
-                scientificName: 'Dracaena fragrans',
-                imageAsset: _corn,
-              ),
-              PlantIdentifyMatch(
-                commonName: 'Olive',
-                scientificName: 'Olea europaea',
-                imageAsset: _fiddle,
-              ),
-            ],
-            kind: IdentifiedKind.tree,
-            isLocalPreview: true,
-          ),
-        ),
-      'mushroom' => PlantIdentifyResult(
-          imagePath: imagePath,
-          commonName: 'Fly Agaric',
-          scientificName: 'Amanita muscaria',
-          confidence: 0,
-          careHighlights: const [
-            'Do not eat a preview ID',
-            'Note the cap, gills, and stem',
-            'Keep away from pets and kids',
-          ],
-          similarMatches: const [
-            PlantIdentifyMatch(
-              commonName: 'Destroying Angel',
-              scientificName: 'Amanita virosa',
-            ),
-            PlantIdentifyMatch(
-              commonName: 'Panther Cap',
-              scientificName: 'Amanita pantherina',
-            ),
-          ],
-          kind: IdentifiedKind.mushroom,
-          toxicity: const PlantToxicity(
-            toxicToPets: true,
-            toxicToKids: true,
-            summary: 'Poisonous if eaten. Preview only — never forage from this.',
-            petsDetail: 'Keep dogs and cats away. Call a vet if anything is eaten.',
-            kidsDetail: 'Not a toy or snack. Wash hands after touching.',
-          ),
-          isLocalPreview: true,
-        ),
-      'weed' => PlantIdentifyResult(
-          imagePath: imagePath,
-          commonName: 'Oxalis',
-          scientificName: 'Oxalis corniculata',
-          confidence: 0,
-          careHighlights: const [
-            'Pull before it sets seed',
-            'Check the whole patch',
-            'Do not compost the roots',
-          ],
-          similarMatches: const [
-            PlantIdentifyMatch(
-              commonName: 'Clover',
-              scientificName: 'Trifolium repens',
-              imageAsset: _jade,
-            ),
-            PlantIdentifyMatch(
-              commonName: 'Wood sorrel',
-              scientificName: 'Oxalis stricta',
-              imageAsset: _jade,
-            ),
-          ],
-          kind: IdentifiedKind.weed,
-          isLocalPreview: true,
-        ),
-      'disease' => _wateredPreview(
-          commonName: 'Peace Lily',
-          extras: const [
-            'Photograph a damaged leaf',
-            'Keep leaves dry when watering',
-          ],
-          result: (care, highlights) => PlantIdentifyResult(
-            imagePath: imagePath,
-            commonName: 'Peace Lily',
-            scientificName: 'Spathiphyllum wallisii',
-            confidence: 0,
-            careHighlights: highlights,
-            care: care,
-            sampleImageAsset: _peaceLily,
-            similarMatches: const [
-              PlantIdentifyMatch(
-                commonName: 'Peace Lily',
-                scientificName: 'Spathiphyllum wallisii',
-                imageAsset: _peaceLily,
-              ),
-              PlantIdentifyMatch(
-                commonName: 'Orchid',
-                scientificName: 'Phalaenopsis',
-                imageAsset: _orchid,
-              ),
-            ],
-            kind: IdentifiedKind.disease,
-            diseaseHint: const PlantDiseaseHint(
-              healthy: true,
-              title: 'Preview only — no diagnosis yet',
-              summary:
-                  'Live diagnosis connects when AI is ready. Photograph a damaged leaf for a closer check.',
-              steps: [
-                'Snap a close-up of the damaged leaf',
-                'Keep soil from staying soggy',
-                'Watch new growth for spots',
-              ],
-              isLocalPreview: true,
-            ),
-            isLocalPreview: true,
-          ),
-        ),
-      _ => _wateredPreview(
-          commonName: 'Snake Plant',
-          extras: const [
-            'Bright to low light',
-            'Let extra water drain',
-          ],
-          result: (care, highlights) => PlantIdentifyResult(
-            imagePath: imagePath,
-            commonName: 'Snake Plant',
-            scientificName: 'Dracaena trifasciata',
-            confidence: 0,
-            careHighlights: highlights,
-            care: care,
-            sampleImageAsset: _snakePlant,
-            similarMatches: const [
-              PlantIdentifyMatch(
-                commonName: 'Monstera',
-                scientificName: 'Monstera deliciosa',
-                imageAsset: _monstera,
-              ),
-              PlantIdentifyMatch(
-                commonName: 'Peace Lily',
-                scientificName: 'Spathiphyllum wallisii',
-                imageAsset: _peaceLily,
-              ),
-              PlantIdentifyMatch(
-                commonName: 'Aloe Vera',
-                scientificName: 'Aloe vera',
-                imageAsset: _aloe,
-              ),
-            ],
-            kind: IdentifiedKind.plant,
-            toxicity: const PlantToxicity(
-              toxicToPets: true,
-              toxicToKids: true,
-              summary:
-                  'Mildly toxic if chewed — keep away from pets and small children.',
-              petsDetail:
-                  'Can irritate cats and dogs if leaves are chewed. Call a vet if they eat any.',
-              kidsDetail:
-                  'Sap can irritate skin and mouths. Wash hands after pruning.',
-            ),
-            diseaseHint: const PlantDiseaseHint(
-              healthy: true,
-              title: 'Preview health check',
-              summary:
-                  'Preview only. Photograph a damaged leaf for a closer check.',
-              steps: [
-                'Wipe dusty leaves so pores can breathe',
-                'Keep soil from staying soggy',
-                'Watch new growth for spots',
-              ],
-              isLocalPreview: true,
-            ),
-            isLocalPreview: true,
-          ),
-        ),
-    };
-  }
-
-  PlantIdentifyResult _wateredPreview({
-    required String commonName,
-    required List<String> extras,
-    required PlantIdentifyResult Function(
-      GardenCareSchedule care,
-      List<String> highlights,
-    ) result,
-  }) {
-    final care = PlantCareEngine.sampleCareFor(commonName);
-    return result(care, [PlantCareEngine.waterHighlight(care), ...extras]);
   }
 
   @override
-  Future<PlantDiseaseHint> diagnoseFromImage(String imagePath) async {
-    await Future<void>.delayed(const Duration(milliseconds: 1100));
+  Future<PlantDiseaseHint> diagnoseFromImages(
+    List<String> imagePaths, {
+    String plantName = '',
+    String symptomId = '',
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    if (!demoUiSuccess) {
+      return PlantDiseaseHint.unavailable;
+    }
     return const PlantDiseaseHint(
-      healthy: true,
-      title: 'Preview only — no diagnosis yet',
+      healthy: false,
+      title: 'Leaf spots — possible fungal issue',
+      diseaseName: 'Demo leaf spot',
       summary:
-          'Live diagnosis connects when AI is ready. Photograph a damaged leaf for a closer check.',
-      steps: [
-        'Snap a close-up of the damaged leaf',
-        'Keep soil from staying soggy',
-        'Watch new growth for spots',
+          'UI preview only. Dark or tan patches on the leaf often mean a fungal spot. Live AI will replace this with a real reading.',
+      confidence: 0.74,
+      kind: 'Fungus',
+      severity: 'Moderate',
+      symptoms: [
+        'Round or irregular brown / tan patches on the leaf',
+        'Yellow ring sometimes around the spot',
+        'Older leaves show marks first',
       ],
+      steps: [
+        'Isolate the plant from others so spores do not splash across.',
+        'Pick off the worst marked leaves and bag them — do not compost.',
+        'Water the soil, not the leaves. Let the top dry between waterings.',
+        'Give space and airflow. If new spots keep appearing, use a houseplant fungicide labeled for leaf spot.',
+      ],
+      prevention:
+          'Avoid wet leaves overnight. Space pots. Check new plants before they join the shelf.',
+      caution:
+          'Keep sprays away from pets and kids. Follow the product label.',
+      hosts: 'Many houseplants and outdoor foliage',
+      spreadsWhen: 'Warm, still, damp air and crowded pots',
       isLocalPreview: true,
     );
   }

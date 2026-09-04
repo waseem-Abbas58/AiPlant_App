@@ -9,6 +9,7 @@ void openBotanistChat({
   String? imagePath,
   bool isAssetImage = false,
   String? plantId,
+  String? issue,
 }) {
   if (!Get.isRegistered<ChatbotController>()) {
     Get.put(ChatbotController(), permanent: true);
@@ -22,6 +23,7 @@ void openBotanistChat({
         imagePath: imagePath,
         isAssetImage: isAssetImage,
         plantId: plantId,
+        issue: issue,
       ),
     );
   }

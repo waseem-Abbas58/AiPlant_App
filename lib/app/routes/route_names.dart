@@ -11,14 +11,10 @@ class RouteNames {
   static const String passwordResetSuccess = '/password-reset-success';
   static const String home = '/home';
   static const String plantScan = '/plant-scan';
-  static const String diseaseDetection = '/disease-detection';
-  static const String plantDetails = '/plant-details';
   static const String search = '/search';
   static const String myGarden = '/my-garden';
   static const String plantFinder = '/plant-finder';
-  static const String reminder = '/reminder';
   static const String chat = '/chat';
-  static const String articles = '/articles';
   static const String subscription = '/subscription';
   static const String profile = '/profile';
   static const String settings = '/settings';

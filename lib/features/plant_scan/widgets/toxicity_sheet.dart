@@ -26,88 +26,103 @@ class ToxicitySheet extends StatelessWidget {
     return showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
+      isScrollControlled: true,
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(32.r),
         ),
       ),
-      builder: (_) => ToxicitySheet(
-        toxicity: toxicity,
-        plantName: plantName,
-      ),
+      builder: (sheetContext) {
+        final maxHeight = MediaQuery.sizeOf(sheetContext).height * 0.85;
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: ToxicitySheet(
+            toxicity: toxicity,
+            plantName: plantName,
+          ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.large.w,
-        AppSpacing.small.h,
-        AppSpacing.large.w,
-        AppSpacing.large.h + MediaQuery.paddingOf(context).bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: CustomContainer(
-              width: 36,
-              height: 4,
-              color: AppColors.divider,
-              borderRadius: AppRadius.circular,
-              alignment: Alignment.center,
-            ),
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.large.w,
+          AppSpacing.small.h,
+          AppSpacing.large.w,
+          AppSpacing.medium.h + bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: CustomContainer(
+                  width: 36,
+                  height: 4,
+                  color: AppColors.divider,
+                  borderRadius: AppRadius.circular,
+                  alignment: Alignment.center,
+                ),
+              ),
+              SizedBox(height: AppSpacing.medium.h),
+              CustomText(
+                plantName ?? 'Toxicity',
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryText,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: AppSpacing.small.h),
+              CustomText(
+                toxicity.summary,
+                fontSize: 14,
+                color: AppColors.secondaryText,
+                height: 1.4,
+              ),
+              if (toxicity.petsDetail.isNotEmpty) ...[
+                SizedBox(height: AppSpacing.medium.h),
+                const CustomText(
+                  'Pets',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryText,
+                ),
+                SizedBox(height: 4.h),
+                CustomText(
+                  toxicity.petsDetail,
+                  fontSize: 14,
+                  color: AppColors.secondaryText,
+                  height: 1.4,
+                ),
+              ],
+              if (toxicity.kidsDetail.isNotEmpty) ...[
+                SizedBox(height: AppSpacing.medium.h),
+                const CustomText(
+                  'Kids',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryText,
+                ),
+                SizedBox(height: 4.h),
+                CustomText(
+                  toxicity.kidsDetail,
+                  fontSize: 14,
+                  color: AppColors.secondaryText,
+                  height: 1.4,
+                ),
+              ],
+            ],
           ),
-          SizedBox(height: AppSpacing.medium.h),
-          CustomText(
-            plantName ?? 'Toxicity',
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primaryText,
-          ),
-          SizedBox(height: AppSpacing.small.h),
-          CustomText(
-            toxicity.summary,
-            fontSize: 14,
-            color: AppColors.secondaryText,
-            height: 1.4,
-          ),
-          if (toxicity.petsDetail.isNotEmpty) ...[
-            SizedBox(height: AppSpacing.medium.h),
-            const CustomText(
-              'Pets',
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primaryText,
-            ),
-            SizedBox(height: 4.h),
-            CustomText(
-              toxicity.petsDetail,
-              fontSize: 14,
-              color: AppColors.secondaryText,
-              height: 1.4,
-            ),
-          ],
-          if (toxicity.kidsDetail.isNotEmpty) ...[
-            SizedBox(height: AppSpacing.medium.h),
-            const CustomText(
-              'Kids',
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primaryText,
-            ),
-            SizedBox(height: 4.h),
-            CustomText(
-              toxicity.kidsDetail,
-              fontSize: 14,
-              color: AppColors.secondaryText,
-              height: 1.4,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

@@ -18,12 +18,12 @@ import '../model/plant_scan_model.dart';
 class PlantScanView extends GetView<PlantScanController> {
   const PlantScanView({super.key});
 
-  @override
+  @override 
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
+        statusBarColor: Colors.transparent, 
+        statusBarIconBrightness: Brightness.light, 
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
@@ -182,7 +182,24 @@ class PlantScanView extends GetView<PlantScanController> {
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              if (!identify)
+                                              if (!identify) ...[
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 6.h,
+                                                  ),
+                                                  child: CustomText(
+                                                    controller
+                                                            .capturedPaths
+                                                            .isEmpty
+                                                        ? 'Add 2–3 photos of the same plant for better accuracy.'
+                                                        : '${controller.capturedPaths.length} of 3 photos added',
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: AppColors.white
+                                                        .withValues(alpha: 0.82),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
                                                 Padding(
                                                   padding: EdgeInsets.only(
                                                     bottom: AppSpacing.small.h,
@@ -195,6 +212,7 @@ class PlantScanView extends GetView<PlantScanController> {
                                                         .removeCapturedAt,
                                                   ),
                                                 ),
+                                              ],
                                               CustomContainer(
                                                 color: Colors.black
                                                     .withValues(alpha: 0.42),
@@ -206,7 +224,7 @@ class PlantScanView extends GetView<PlantScanController> {
                                                       MainAxisSize.min,
                                                   children: [
                                                     _ModePill(
-                                                      label: 'Identify',
+                                                      label: 'Single Photo',
                                                       selected: identify,
                                                       onTap: () => controller
                                                           .setIdentifyMode(
@@ -214,7 +232,7 @@ class PlantScanView extends GetView<PlantScanController> {
                                                       ),
                                                     ),
                                                     _ModePill(
-                                                      label: 'Multiple',
+                                                      label: 'Multiple Angles',
                                                       selected: !identify,
                                                       onTap: () => controller
                                                           .setIdentifyMode(
@@ -284,7 +302,9 @@ class PlantScanView extends GetView<PlantScanController> {
                                 vertical: 10.h,
                               ),
                               child: CustomText(
-                                'Identify ${controller.capturedPaths.length} photos',
+                                controller.capturedPaths.length == 1
+                                    ? 'Analyze 1 photo'
+                                    : 'Analyze ${controller.capturedPaths.length} photos',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.white,

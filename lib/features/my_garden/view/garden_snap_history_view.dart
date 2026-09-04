@@ -14,52 +14,48 @@ import '../widgets/garden_empty_state.dart';
 import '../widgets/garden_snap_card.dart';
 import '../widgets/garden_subpage_header.dart';
 
-class GardenSnapHistoryView extends StatefulWidget {
+class GardenSnapHistoryView extends StatelessWidget {
   const GardenSnapHistoryView({super.key, this.embedded = false});
 
   final bool embedded;
-
-  @override
-  State<GardenSnapHistoryView> createState() => _GardenSnapHistoryViewState();
-}
-
-class _GardenSnapHistoryViewState extends State<GardenSnapHistoryView> {
-  var _wishlistTab = false;
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<MyGardenController>();
     final body = Column(
       children: [
-        if (!widget.embedded) const GardenSubpageHeader(title: 'Collection'),
+        if (!embedded) const GardenSubpageHeader(title: 'Collection'),
         Padding(
           padding: EdgeInsets.fromLTRB(
             AppSpacing.medium.w,
-            widget.embedded ? AppSpacing.small.h : 0,
+            embedded ? AppSpacing.small.h : 0,
             AppSpacing.medium.w,
             AppSpacing.small.h,
           ),
-          child: CustomContainer(
-            color: AppColors.white,
-            borderRadius: AppRadius.large,
-            shadow: AppShadows.soft,
-            clipBehavior: Clip.antiAlias,
-            padding: EdgeInsets.all(4.r),
-            child: Row(
-              children: [
-                _CollectionTab(
-                  label: 'Seen',
-                  selected: !_wishlistTab,
-                  onTap: () => setState(() => _wishlistTab = false),
-                ),
-                _CollectionTab(
-                  label: 'Wishlist',
-                  selected: _wishlistTab,
-                  onTap: () => setState(() => _wishlistTab = true),
-                ),
-              ],
-            ),
-          ),
+          child: Obx(() {
+            final wishlistTab = controller.snapCollectionTab.value == 1;
+            return CustomContainer(
+              color: AppColors.white,
+              borderRadius: AppRadius.large,
+              shadow: AppShadows.soft,
+              clipBehavior: Clip.antiAlias,
+              padding: EdgeInsets.all(4.r),
+              child: Row(
+                children: [
+                  _CollectionTab(
+                    label: 'Seen',
+                    selected: !wishlistTab,
+                    onTap: () => controller.snapCollectionTab.value = 0,
+                  ),
+                  _CollectionTab(
+                    label: 'Wishlist',
+                    selected: wishlistTab,
+                    onTap: () => controller.snapCollectionTab.value = 1,
+                  ),
+                ],
+              ),
+            );
+          }),
         ),
         Expanded(
           child: Padding(
@@ -67,17 +63,20 @@ class _GardenSnapHistoryViewState extends State<GardenSnapHistoryView> {
               AppSpacing.medium.w,
               AppSpacing.small.h,
               AppSpacing.medium.w,
-              widget.embedded ? 0 : AppSpacing.medium.h,
+              embedded ? 0 : AppSpacing.medium.h,
             ),
-            child: _wishlistTab
-                ? _WishlistTab(controller: controller)
-                : _SeenTab(controller: controller),
+            child: Obx(() {
+              final wishlistTab = controller.snapCollectionTab.value == 1;
+              return wishlistTab
+                  ? _WishlistTab(controller: controller)
+                  : _SeenTab(controller: controller);
+            }),
           ),
         ),
       ],
     );
 
-    if (widget.embedded) return body;
+    if (embedded) return body;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -114,7 +113,7 @@ class _CollectionTab extends StatelessWidget {
           onTap();
         },
         color: selected ? AppColors.primaryGreen : Colors.transparent,
-        borderRadius: AppRadius.medium, 
+        borderRadius: AppRadius.medium,
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(vertical: 8.h),
         child: CustomText(
@@ -136,8 +135,8 @@ class _SeenTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final seen = controller.seenSnaps;
-      if (controller.snaps.isEmpty) {
+      final snaps = controller.snaps;
+      if (snaps.isEmpty) {
         return GardenEmptyState(
           illustration: const GardenSnapEmptyArt(),
           title: 'No snaps yet',
@@ -146,33 +145,26 @@ class _SeenTab extends StatelessWidget {
           onAction: controller.openIdentify,
         );
       }
-      if (seen.isEmpty) {
-        return GardenEmptyState(
-          illustration: const GardenEmptyArt(),
-          title: 'All saved',
-          subtitle: 'Every snap is already in your garden.',
-          actionLabel: 'Identify Plant',
-          onAction: controller.openIdentify,
-        );
-      }
 
       return ListView.separated(
-        itemCount: seen.length,
+        itemCount: snaps.length,
         separatorBuilder: (_, __) => SizedBox(height: AppSpacing.small.h),
         itemBuilder: (context, index) {
-          final snap = seen[index];
+          final snap = snaps[index];
+          final inGarden = controller.isInGarden(snap.imagePath);
           final wished = controller.isOnWishlist(snap.imagePath);
           return GardenSnapCard(
             imagePath: snap.imagePath,
             name: snap.name,
             scientificName: snap.scientificName,
             dateLabel: snap.dateLabel,
+            inGarden: inGarden,
             onWishlist: wished,
             onDelete: () => controller.deleteSnap(snap),
-            onAdd: () => controller.addSnapToGarden(snap),
+            onAdd: inGarden ? null : () => controller.addSnapToGarden(snap),
             onOpen: () => controller.openSeenIdentify(snap),
             onSaveWishlist:
-                wished ? null : () => controller.addSnapToWishlist(snap),
+                wished || inGarden ? null : () => controller.addSnapToWishlist(snap),
           );
         },
       );

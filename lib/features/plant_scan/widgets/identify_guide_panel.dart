@@ -6,13 +6,12 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_shadows.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../core/helpers/navigation_helper.dart';
 import '../../../shared/widgets/custom_container.dart';
 import '../../../shared/widgets/custom_text.dart';
 import '../../home/model/suggestion_article.dart';
 import '../../home/model/trending_plant.dart';
 import '../../suggestions/view/suggestion_detail_view.dart';
-import '../view/identify_disease_view.dart';
+import '../data/diagnose_flow.dart';
 
 class IdentifyGuideTabs {
   static const labels = [
@@ -296,12 +295,7 @@ class IdentifyGuideSections extends StatelessWidget {
                       return CustomContainer(
                         onTap: () {
                           HapticFeedback.selectionClick();
-                          NavigationHelper.to(
-                            () => IdentifyDiseaseView(
-                              imagePath: pest.imagePath,
-                              plantName: plant.name,
-                            ),
-                          );
+                          DiagnoseFlow.start(plantName: plant.name);
                         },
                         width: 96,
                         color: AppColors.white,

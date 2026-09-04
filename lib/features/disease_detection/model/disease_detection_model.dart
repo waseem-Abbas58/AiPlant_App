@@ -1,3 +1,0 @@
-class DiseaseDetectionModel {
-  const DiseaseDetectionModel();
-}

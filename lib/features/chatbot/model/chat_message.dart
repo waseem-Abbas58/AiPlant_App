@@ -4,19 +4,25 @@ class ChatPlantContext {
     this.imagePath,
     this.isAssetImage = false,
     this.plantId,
+    this.issue,
   });
 
   final String name;
   final String? imagePath;
   final bool isAssetImage;
   final String? plantId;
+  final String? issue;
 
   bool get hasPhoto => imagePath != null && imagePath!.trim().isNotEmpty;
 
   bool sameAs(ChatPlantContext? other) {
     if (other == null) return false;
-    if (plantId != null && other.plantId != null) return plantId == other.plantId;
-    return name == other.name && imagePath == other.imagePath;
+    if (plantId != null && other.plantId != null) {
+      return plantId == other.plantId && issue == other.issue;
+    }
+    return name == other.name &&
+        imagePath == other.imagePath &&
+        issue == other.issue;
   }
 }
 

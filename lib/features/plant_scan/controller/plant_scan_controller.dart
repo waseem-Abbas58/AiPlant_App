@@ -9,10 +9,11 @@ import '../../../shared/camera/premium_camera_session.dart';
 import '../../../shared/components/custom_snackbar.dart';
 import '../../main_navigation/controller/main_navigation_controller.dart';
 import '../../my_garden/controller/my_garden_controller.dart';
+import '../data/identify_flow.dart';
+import '../data/identify_scan_session.dart';
+import '../data/plant_photo_quality.dart';
 import '../model/plant_identify_result.dart';
 import '../model/plant_scan_model.dart';
-import '../view/identify_failed_view.dart';
-import '../view/identify_processing_view.dart';
 import '../view/identify_result_view.dart';
 import '../view/identify_tips_view.dart';
 
@@ -216,9 +217,23 @@ class PlantScanController extends GetxController {
     if (capturedPaths.length >= maxMultipleShots) {
       CustomSnackbar.info(
         title: '5 photos max',
-        message: 'Remove one, or identify these together.',
+        message: 'Remove one, or analyze these together.',
       );
       return;
+    }
+    if (capturedPaths.isNotEmpty) {
+      final dup = await PlantPhotoQuality.areNearDuplicate(
+        capturedPaths.last,
+        path,
+      );
+      if (dup) {
+        CustomSnackbar.warning(
+          title: 'Try a different angle',
+          message:
+              'This photo looks very similar to the last one. Add a leaf or flower close-up.',
+        );
+        return;
+      }
     }
     capturedPaths.add(path);
   }
@@ -240,59 +255,39 @@ class PlantScanController extends GetxController {
   Future<void> _runIdentify(List<String> paths) async {
     if (paths.isEmpty) return;
     pauseCamera();
-    final result = await NavigationHelper.to<PlantIdentifyResult>(
-      () => IdentifyProcessingView(
-        imagePath: paths.first,
-        categoryId: category.id,
-      ),
-    );
+    final scanId = IdentifyScanSession.newId();
+    final pathsCopy = List<String>.of(paths);
     capturedPaths.clear();
+    final result = await IdentifyFlow.run(
+      imagePaths: pathsCopy,
+      categoryId: category.id,
+      scanId: scanId,
+    );
     if (result == null) {
+      lastThumbPath.value = null;
       startCamera();
       return;
     }
-    if (!result.isIdentified) {
-      await NavigationHelper.to(
-        () => IdentifyFailedView(
-          reason: result.failReason,
-          categoryId: category.id,
-        ),
-      );
-    } else {
-      await _finishSuccess(result);
-    }
+    await _finishSuccess(result);
     startCamera();
   }
 
   Future<void> _finishSuccess(PlantIdentifyResult result) async {
     if (Get.isRegistered<MyGardenController>()) {
-      Get.find<MyGardenController>().addIdentifySnap(
+      final garden = Get.find<MyGardenController>();
+      final stored = await garden.recordIdentifySnap(
         result.imagePath,
         name: result.commonName,
         scientificName: result.scientificName,
       );
+      result = result.copyWith(imagePath: stored);
     }
-    final plantId = await NavigationHelper.to<String>(
+    await NavigationHelper.to<String>(
       () => IdentifyResultView(
         result: result,
         openToxicity: toxicityFocus.value,
       ),
     );
     toxicityFocus.value = false;
-    if (plantId == null || plantId.isEmpty) return;
-    if (Get.isRegistered<MainNavigationController>()) {
-      Get.find<MainNavigationController>().onTabTapped(
-        MainNavigationController.gardenIndex,
-      );
-    }
-    if (!Get.isRegistered<MyGardenController>()) return;
-    final garden = Get.find<MyGardenController>();
-    final plant = garden.plantById(plantId);
-    CustomSnackbar.success(
-      title: 'Added to garden',
-      message: plant == null
-          ? 'Saved'
-          : '${plant.name} added to your garden',
-    );
   }
 }
